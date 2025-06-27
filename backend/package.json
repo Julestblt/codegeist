@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/server.ts",
+    "build": "bun tsc"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^11.1.0",
+    "bullmq": "^5.56.0",
+    "fastify": "^5.4.0",
+    "ioredis": "^5.6.1",
+    "zod": "^3.25.67"
+  }
+}
