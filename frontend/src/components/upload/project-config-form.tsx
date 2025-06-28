@@ -1,8 +1,15 @@
-import React from 'react';
-import { Upload, FileArchive, FolderOpen, Github, X, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import React from "react";
+import {
+  Upload,
+  FileArchive,
+  FolderOpen,
+  Github,
+  X,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface ProjectConfigFormProps {
   selectedFile: File;
@@ -25,14 +32,14 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
   onProjectNameChange,
   onGitUrlChange,
   onSubmit,
-  onCancel
+  onCancel,
 }) => {
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
   return (
@@ -46,8 +53,12 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   <FolderOpen className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Project Configuration</h3>
-                  <p className="text-blue-100">Configure your project details</p>
+                  <h3 className="text-xl font-bold text-white">
+                    Project Configuration
+                  </h3>
+                  <p className="text-blue-100">
+                    Configure your project details
+                  </p>
                 </div>
               </div>
               <Button
@@ -69,7 +80,9 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 <FileArchive className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">{selectedFile.name}</h4>
+                <h4 className="font-semibold text-gray-900">
+                  {selectedFile.name}
+                </h4>
                 <p className="text-sm text-gray-600">
                   {formatFileSize(selectedFile.size)} • ZIP Archive
                 </p>
@@ -82,7 +95,10 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
 
           <div className="px-8 py-8 space-y-6">
             <div className="space-y-3">
-              <label htmlFor="projectName" className="block text-sm font-semibold text-gray-900">
+              <label
+                htmlFor="projectName"
+                className="block text-sm font-semibold text-gray-900"
+              >
                 Project Name *
               </label>
               <div className="relative">
@@ -106,9 +122,14 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="gitUrl" className="block text-sm font-semibold text-gray-900">
+              <label
+                htmlFor="gitUrl"
+                className="block text-sm font-semibold text-gray-900"
+              >
                 Git Repository URL
-                <span className="text-gray-500 font-normal ml-1">(Optionnel)</span>
+                <span className="text-gray-500 font-normal ml-1">
+                  (Optionnel)
+                </span>
               </label>
               <div className="relative">
                 <Input

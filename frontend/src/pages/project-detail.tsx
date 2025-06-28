@@ -1,50 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useProjectContext } from '@/contexts/project-context';
-import ProjectHeader from '@/components/layout/project-header';
-import FileExplorer from '@/components/file-explorer';
-import CodeViewer from '@/components/code-viewer';
-import AnalysisPanel from '@/components/analysis-panel';
-import { analyzeCode } from '@/utils/code-analyser';
-import { findFileByPath } from '@/utils/file-processor';
-import type { FileNode, Vulnerability } from '@/types';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useProjectContext } from "@/contexts/project-context";
+import ProjectHeader from "@/components/layout/project-header";
+import FileExplorer from "@/components/file-explorer";
+import CodeViewer from "@/components/code-viewer";
+import AnalysisPanel from "@/components/analysis-panel";
+import { analyzeCode } from "@/utils/code-analyser";
+import { findFileByPath } from "@/utils/file-processor";
+import type { FileNode, Vulnerability } from "@/types";
 
 const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { projects, updateProject } = useProjectContext();
-  
+
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const currentProject = projects.find(p => p.id === projectId);
+  const currentProject = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
     if (!currentProject) {
-      navigate('/projects');
+      navigate("/projects");
       return;
     }
 
-    if (currentProject.status === 'analyzing') {
+    if (currentProject.status === "analyzing") {
       handleAnalyzeProject();
     }
   }, [currentProject, navigate]);
 
   const handleAnalyzeProject = async () => {
     if (!currentProject || isAnalyzing) return;
-    
+
     setIsAnalyzing(true);
-    updateProject(currentProject.id, { status: 'analyzing' });
-    
+    updateProject(currentProject.id, { status: "analyzing" });
+
     try {
       const analysis = await analyzeCode(currentProject);
-      updateProject(currentProject.id, { 
-        status: 'completed',
-        analysis 
+      updateProject(currentProject.id, {
+        status: "completed",
+        analysis,
       });
     } catch (error) {
-      console.error('Analysis failed:', error);
-      updateProject(currentProject.id, { status: 'error' });
+      console.error("Analysis failed:", error);
+      updateProject(currentProject.id, { status: "error" });
     } finally {
       setIsAnalyzing(false);
     }
@@ -69,7 +69,7 @@ const ProjectDetailPage: React.FC = () => {
 
   return (
     <>
-      <ProjectHeader 
+      <ProjectHeader
         project={currentProject}
         isAnalyzing={isAnalyzing}
         onAnalyze={handleAnalyzeProject}

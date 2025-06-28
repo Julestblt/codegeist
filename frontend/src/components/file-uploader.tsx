@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { AlertCircle } from 'lucide-react';
-import { processZipFile } from '@/utils/file-processor';
-import type { Project } from '@/types';
-import FileDropZone from '@/components/upload/file-drop-zone';
-import ProjectConfigForm from '@/components/upload/project-config-form';
+import React, { useState, useRef } from "react";
+import { AlertCircle } from "lucide-react";
+import { processZipFile } from "@/utils/file-processor";
+import type { Project } from "@/types";
+import FileDropZone from "@/components/upload/file-drop-zone";
+import ProjectConfigForm from "@/components/upload/project-config-form";
 
 interface FileUploaderProps {
   onUpload: (project: Project) => void;
@@ -14,26 +14,26 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [projectName, setProjectName] = useState('');
-  const [gitUrl, setGitUrl] = useState('');
+  const [projectName, setProjectName] = useState("");
+  const [gitUrl, setGitUrl] = useState("");
   const [showForm, setShowForm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File) => {
-    if (!file.name.endsWith('.zip')) {
-      setError('Please select a ZIP file containing your code');
+    if (!file.name.endsWith(".zip")) {
+      setError("Please select a ZIP file containing your code");
       return;
     }
 
     setSelectedFile(file);
-    setProjectName(file.name.replace('.zip', '').replace(/[-_]/g, ' '));
+    setProjectName(file.name.replace(".zip", "").replace(/[-_]/g, " "));
     setShowForm(true);
     setError(null);
   };
 
   const handleSubmit = async () => {
     if (!selectedFile || !projectName.trim()) {
-      setError('Please provide a project name');
+      setError("Please provide a project name");
       return;
     }
 
@@ -45,12 +45,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
       const enhancedProject = {
         ...project,
         name: projectName.trim(),
-        gitUrl: gitUrl.trim() || undefined
+        gitUrl: gitUrl.trim() || undefined,
       };
       onUpload(enhancedProject);
     } catch (err) {
-      setError('Failed to process ZIP file. Make sure it contains valid code files.');
-      console.error('File processing error:', err);
+      setError(
+        "Failed to process ZIP file. Make sure it contains valid code files."
+      );
+      console.error("File processing error:", err);
     } finally {
       setIsProcessing(false);
     }
@@ -58,8 +60,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
 
   const handleCancel = () => {
     setSelectedFile(null);
-    setProjectName('');
-    setGitUrl('');
+    setProjectName("");
+    setGitUrl("");
     setShowForm(false);
     setError(null);
   };

@@ -1,8 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useProjectContext } from '@/contexts/project-context';
-import ProjectDashboard from '@/components/project-dashboard';
-import type { Project } from '@/types';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useProjectContext } from "@/contexts/project-context";
+import ProjectDashboard from "@/components/project-dashboard";
+import type { Project } from "@/types";
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,9 +13,9 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <ProjectDashboard 
-      projects={projects} 
-      onProjectSelect={handleProjectSelect} 
+    <ProjectDashboard
+      projects={projects}
+      onProjectSelect={handleProjectSelect}
     />
   );
 };

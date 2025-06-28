@@ -1,7 +1,7 @@
-import React, { createContext, useContext,  } from 'react';
-import type { ReactNode } from 'react';
-import { useProjects } from '@/hooks/use-projects';
-import type { Project } from '@/types';
+import React, { createContext, useContext } from "react";
+import type { ReactNode } from "react";
+import { useProjects } from "@/hooks/use-projects";
+import type { Project } from "@/types";
 
 interface ProjectContextType {
   projects: Project[];
@@ -15,7 +15,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export const useProjectContext = () => {
   const context = useContext(ProjectContext);
   if (context === undefined) {
-    throw new Error('useProjectContext must be used within a ProjectProvider');
+    throw new Error("useProjectContext must be used within a ProjectProvider");
   }
   return context;
 };
@@ -24,7 +24,9 @@ interface ProjectProviderProps {
   children: ReactNode;
 }
 
-export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) => {
+export const ProjectProvider: React.FC<ProjectProviderProps> = ({
+  children,
+}) => {
   const projectsData = useProjects();
 
   return (

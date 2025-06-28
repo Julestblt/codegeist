@@ -1,9 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ProjectProvider } from './contexts/project-context';
-import Layout from '@/components/layout/layout';
-import DashboardPage from './pages/dashboard';
-import ProjectsPage from './pages/projects';
-import ProjectDetailPage from '@/pages/project-detail';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ProjectProvider } from "./contexts/project-context";
+import Layout from "@/components/layout/layout";
+import DashboardPage from "./pages/dashboard";
+import ProjectsPage from "./pages/projects";
+import ProjectDetailPage from "@/pages/project-detail";
 
 function App() {
   return (
@@ -12,9 +12,11 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+            <Route
+              path="/projects/:projectId"
+              element={<ProjectDetailPage />}
+            />
           </Routes>
         </Layout>
       </Router>
