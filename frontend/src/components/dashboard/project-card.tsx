@@ -35,9 +35,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     const critical = getCriticalVulnerabilities();
     const total = getTotalVulnerabilities();
 
-    if (critical > 0) return { level: 'Critique', variant: 'destructive' as const };
-    if (total > 5) return { level: 'Élevé', variant: 'default' as const };
-    if (total > 0) return { level: 'Moyen', variant: 'secondary' as const };
+    if (critical > 0) return { level: 'Critical', variant: 'destructive' as const };
+    if (total > 5) return { level: 'High', variant: 'default' as const };
+    if (total > 0) return { level: 'Medium', variant: 'secondary' as const };
     return { level: 'Faible', variant: 'outline' as const };
   };
 
@@ -68,14 +68,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
                 {project.name}
               </h3>
               <Badge variant={getStatusVariant()}>
-                <span className="capitalize">{project.status === 'completed' ? 'Terminé' : project.status === 'analyzing' ? 'En cours' : 'Erreur'}</span>
+                <span className="capitalize">{project.status === 'completed' ? 'Completed' : project.status === 'analyzing' ? 'Analyzing' : 'Error'}</span>
               </Badge>
             </div>
           </div>
           
           {project.analysis && (
             <Badge variant={risk.variant}>
-              Risque {risk.level}
+              Risk {risk.level}
             </Badge>
           )}
         </div>
@@ -87,7 +87,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
           </div>
           <div className="flex items-center text-sm text-slate-600">
             <FileText className="w-4 h-4 mr-2" />
-            {project.fileCount} fichiers
+            {project.fileCount} files
           </div>
           <div className="flex items-center text-sm text-slate-600">
             <HardDrive className="w-4 h-4 mr-2" />
@@ -109,7 +109,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
                   <div className="text-lg font-bold text-red-600">
                     {getCriticalVulnerabilities()}
                   </div>
-                  <div className="text-xs text-slate-500">Critiques</div>
+                  <div className="text-xs text-slate-500">Critical</div>
                 </div>
               </div>
               <div className="text-right">
@@ -128,7 +128,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
               <div className="flex-1 bg-slate-200 rounded-full h-2">
                 <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
               </div>
-              <span className="text-xs text-slate-600">Analyse...</span>
+              <span className="text-xs text-slate-600">Analyzing...</span>
             </div>
           </div>
         )}

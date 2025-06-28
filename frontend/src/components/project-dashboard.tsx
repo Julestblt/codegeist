@@ -30,22 +30,22 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projects, onProject
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
             <FolderOpen className="w-12 h-12 text-blue-600" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-3">Bienvenue sur CodeGeist</h3>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3">Welcome to CodeGeist</h3>
           <p className="text-slate-600 mb-8 max-w-md leading-relaxed">
-            Commencez votre parcours sécuritaire en téléchargeant votre premier projet de code. Notre IA l'analysera pour détecter les vulnérabilités et fournir des insights détaillés.
+            Start your security journey by uploading your first code project. Our AI will analyze it to detect vulnerabilities and provide detailed insights.
           </p>
           <div className="flex items-center justify-center space-x-4 text-sm text-slate-500">
             <div className="flex items-center">
               <Zap className="w-4 h-4 mr-1" />
-              Analyse IA
+              AI Analysis
             </div>
             <div className="flex items-center">
               <Shield className="w-4 h-4 mr-1" />
-              Sécurité Focalisée
+              Security Focused
             </div>
             <div className="flex items-center">
               <TrendingUp className="w-4 h-4 mr-1" />
-              Rapports Détaillés
+              Detailed Reports
             </div>
           </div>
         </div>
@@ -59,18 +59,18 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projects, onProject
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">Tableau de Bord Sécurité</h2>
-              <p className="text-slate-600">Surveillez et analysez vos repositories de code pour les vulnérabilités de sécurité</p>
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">Security Dashboard</h2>
+              <p className="text-slate-600">Monitor and analyze your code repositories for security vulnerabilities</p>
             </div>
             <div className="flex items-center space-x-2 px-4 py-2 bg-white rounded-lg shadow-sm border border-slate-200">
               <Activity className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-slate-700">Surveillance Live</span>
+              <span className="text-sm font-medium text-slate-700">Live Monitoring</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <StatsCard
-              title="Total Projets"
+              title="Total Projects"
               value={totalProjects}
               icon={FolderOpen}
               iconColor="text-blue-600"
@@ -84,14 +84,14 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projects, onProject
               iconBg="bg-emerald-100"
             />
             <StatsCard
-              title="Total Problèmes"
+              title="Total Issues"
               value={totalVulnerabilities}
               icon={AlertTriangle}
               iconColor="text-orange-600"
               iconBg="bg-orange-100"
             />
             <StatsCard
-              title="Critiques"
+              title="Critical"
               value={criticalVulnerabilities}
               icon={Shield}
               iconColor="text-red-600"

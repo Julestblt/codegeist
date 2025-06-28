@@ -1,17 +1,26 @@
 import React from 'react';
 import { Shield, Settings, User, Zap } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-interface HeaderProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
-}
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
+  const getCurrentView = () => {
+    if (location.pathname.startsWith('/projects')) return 'projects';
+    return 'dashboard';
+  };
+
+  const currentView = getCurrentView();
+
   return (
     <header className="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-6 py-4 shadow-lg">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div 
+          className="flex items-center space-x-3 cursor-pointer"
+          onClick={() => navigate('/')}
+        >
           <div className="relative">
             <Shield className="w-8 h-8 text-blue-400" />
             <Zap className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1" />
@@ -20,30 +29,30 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               CodeGeist
             </h1>
-            <p className="text-xs text-slate-400 font-medium">Analyse de Sécurité Intelligente</p>
+            <p className="text-xs text-slate-400 font-medium">Intelligent Security Analysis</p>
           </div>
         </div>
         
         <nav className="flex items-center space-x-1">
           <Button
             variant={currentView === 'dashboard' ? 'default' : 'ghost'}
-            onClick={() => onViewChange('dashboard')}
+            onClick={() => navigate('/')}
             className={currentView === 'dashboard' 
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
               : 'text-slate-300 hover:text-white hover:bg-slate-700'
             }
           >
-            Tableau de Bord
+            Dashboard
           </Button>
           <Button
             variant={currentView === 'projects' ? 'default' : 'ghost'}
-            onClick={() => onViewChange('projects')}
+            onClick={() => navigate('/projects')}
             className={currentView === 'projects' 
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
               : 'text-slate-300 hover:text-white hover:bg-slate-700'
             }
           >
-            Projets
+            Projects
           </Button>
         </nav>
         

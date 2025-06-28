@@ -45,10 +45,10 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
         {/* Content */}
         <div className="space-y-4">
           <h3 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-            Téléchargez Votre Projet
+            Upload Your Project
           </h3>
           <p className="text-gray-600 text-lg leading-relaxed max-w-md mx-auto">
-            Glissez-déposez un fichier ZIP contenant votre projet, ou cliquez pour parcourir
+            Drag and drop a ZIP file containing your project, or click to browse
           </p>
           
           <div className="pt-4">
@@ -59,7 +59,7 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
               className="hover:scale-105"
             >
               <Upload className="w-5 h-5 mr-3" />
-              Sélectionner un fichier ZIP
+              Select ZIP file
             </Button>
           </div>
         </div>
@@ -70,7 +70,7 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
             <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
               <FileArchive className="w-4 h-4 text-green-600" />
             </div>
-            <span>Archives ZIP supportées</span>
+            <span>ZIP Archives supported</span>
           </div>
           <div className="flex items-center space-x-3 text-sm text-gray-600">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">

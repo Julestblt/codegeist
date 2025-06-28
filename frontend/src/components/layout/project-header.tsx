@@ -17,7 +17,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
         return (
           <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
             <Activity className="w-4 h-4 mr-2 animate-pulse" />
-            Analyse en cours...
+            Analyzing...
           </Badge>
         );
       case 'completed':
@@ -25,10 +25,10 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
           <div className="flex items-center space-x-4">
             <div className="text-sm">
               <span className="font-medium text-gray-900">
-                {project.analysis.summary.total} problèmes trouvés
+                {project.analysis.summary.total} issues found
               </span>
               <span className="text-gray-600 ml-2">
-                ({project.analysis.summary.critical} critiques)
+                ({project.analysis.summary.critical} critical)
               </span>
             </div>
           </div>
@@ -37,7 +37,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
         return (
           <Badge variant="destructive" className="bg-red-50 text-red-700 border-red-200">
             <AlertCircle className="w-4 h-4 mr-2" />
-            Échec de l'analyse
+            Analysis failed
           </Badge>
         );
       default:
@@ -51,7 +51,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
         <div>
           <h2 className="text-xl font-semibold text-gray-900">{project.name}</h2>
           <p className="text-sm text-gray-600">
-            {project.fileCount} fichiers • Téléchargé le {project.uploadDate.toLocaleDateString('fr-FR')}
+            {project.fileCount} files • Uploaded on {project.uploadDate.toLocaleDateString('en-US')}
           </p>
         </div>
         
@@ -65,7 +65,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
               size="default"
             >
               <Play className="w-4 h-4 mr-2" />
-              Re-analyser
+              Re-analyze
             </Button>
           )}
           
@@ -75,7 +75,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, isAnalyzing, onA
               variant="outline"
               size="sm"
             >
-              Réessayer
+              Retry
             </Button>
           )}
         </div>

@@ -21,7 +21,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
 
   const handleFileSelect = async (file: File) => {
     if (!file.name.endsWith('.zip')) {
-      setError('Veuillez sélectionner un fichier ZIP contenant votre code');
+      setError('Please select a ZIP file containing your code');
       return;
     }
 
@@ -33,7 +33,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
 
   const handleSubmit = async () => {
     if (!selectedFile || !projectName.trim()) {
-      setError('Veuillez fournir un nom de projet');
+      setError('Please provide a project name');
       return;
     }
 
@@ -49,7 +49,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
       };
       onUpload(enhancedProject);
     } catch (err) {
-      setError('Échec du traitement du fichier ZIP. Assurez-vous qu\'il contient des fichiers de code valides.');
+      setError('Failed to process ZIP file. Make sure it contains valid code files.');
       console.error('File processing error:', err);
     } finally {
       setIsProcessing(false);
@@ -134,7 +134,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-3">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium text-red-800">Erreur de téléchargement</h4>
+            <h4 className="text-sm font-medium text-red-800">Upload Error</h4>
             <p className="text-sm text-red-700">{error}</p>
           </div>
         </div>

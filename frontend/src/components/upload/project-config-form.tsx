@@ -46,8 +46,8 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   <FolderOpen className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Configuration du Projet</h3>
-                  <p className="text-blue-100">Configurez les détails de votre projet</p>
+                  <h3 className="text-xl font-bold text-white">Project Configuration</h3>
+                  <p className="text-blue-100">Configure your project details</p>
                 </div>
               </div>
               <Button
@@ -71,11 +71,11 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900">{selectedFile.name}</h4>
                 <p className="text-sm text-gray-600">
-                  {formatFileSize(selectedFile.size)} • Archive ZIP
+                  {formatFileSize(selectedFile.size)} • ZIP Archive
                 </p>
               </div>
               <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                Prêt à traiter
+                Ready to process
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
           <div className="px-8 py-8 space-y-6">
             <div className="space-y-3">
               <label htmlFor="projectName" className="block text-sm font-semibold text-gray-900">
-                Nom du Projet *
+                Project Name *
               </label>
               <div className="relative">
                 <Input
@@ -91,7 +91,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   type="text"
                   value={projectName}
                   onChange={(e) => onProjectNameChange(e.target.value)}
-                  placeholder="Entrez le nom de votre projet"
+                  placeholder="Enter your project name"
                   className="pr-12 h-12 rounded-xl"
                   disabled={isProcessing}
                   required
@@ -101,13 +101,13 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                Choisissez un nom descriptif pour votre projet
+                Choose a descriptive name for your project
               </p>
             </div>
 
             <div className="space-y-3">
               <label htmlFor="gitUrl" className="block text-sm font-semibold text-gray-900">
-                URL du Repository Git
+                Git Repository URL
                 <span className="text-gray-500 font-normal ml-1">(Optionnel)</span>
               </label>
               <div className="relative">
@@ -125,7 +125,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                Lien vers votre repository pour un meilleur suivi et collaboration
+                Link to your repository for better tracking and collaboration
               </p>
             </div>
 
@@ -133,7 +133,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
               <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-3">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-sm font-medium text-red-800">Erreur</h4>
+                  <h4 className="text-sm font-medium text-red-800">Error</h4>
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               </div>
@@ -145,7 +145,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 onClick={onCancel}
                 disabled={isProcessing}
               >
-                Annuler
+                Cancel
               </Button>
               <Button
                 onClick={onSubmit}
@@ -161,7 +161,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 ) : (
                   <>
                     <Upload className="w-5 h-5 mr-2" />
-                    Démarrer l'Analyse
+                    Start Analysis
                   </>
                 )}
               </Button>
