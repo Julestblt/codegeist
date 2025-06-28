@@ -7,8 +7,15 @@ export interface ManifestNode {
   size: number;
 }
 
-const buildManifest = async (root: string): Promise<ManifestNode[]> => {
+const buildManifest = async (
+  root: string
+): Promise<{
+  manifest: ManifestNode[];
+  totalSize: number;
+}> => {
   const list: ManifestNode[] = [];
+  let total = 0;
+
   async function walk(dir: string) {
     for (const ent of await readdir(dir, { withFileTypes: true })) {
       const full = path.join(dir, ent.name);
@@ -19,11 +26,12 @@ const buildManifest = async (root: string): Promise<ManifestNode[]> => {
       } else {
         const { size } = await Bun.file(full).stat();
         list.push({ path: rel, isDir: false, size });
+        total += size;
       }
     }
   }
   await walk(root);
-  return list;
+  return { manifest: list, totalSize: total };
 };
 
 export { buildManifest };

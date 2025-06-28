@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { pipeline } from "node:stream/promises";
 import { Extract } from "unzipper";
 import { randomUUID } from "node:crypto";
@@ -13,4 +13,14 @@ const saveAndUnzip = async (
   return { projectId, rootPath };
 };
 
-export { saveAndUnzip };
+const deleteProjectFolder = async (projectId: string): Promise<void> => {
+  const rootPath = `uploads/${projectId}`;
+  try {
+    await rm(rootPath, { recursive: true, force: true });
+  } catch (error) {
+    console.error(`Failed to delete project ${projectId}:`, error);
+    throw new Error(`Could not delete project ${projectId}`);
+  }
+};
+
+export { saveAndUnzip, deleteProjectFolder };

@@ -1,2 +1,2 @@
-export * from "./chat";
-export * from "./projects";
+export * from "./chat.routes";
+export * from "./projects.routes";

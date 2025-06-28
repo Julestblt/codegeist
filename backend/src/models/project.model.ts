@@ -1,21 +1,45 @@
 import { prisma } from "../lib/prisma";
 import { Prisma } from "@prisma/client";
+import type { ManifestNode } from "../services/manifest.service";
 
-const createProject = (data: {
+const createProjectMeta = async (data: {
   id: string;
   name: string;
   url?: string;
-  rootPath: string;
-  manifest: Prisma.JsonValue;
-}) =>
-  prisma.project.create({
+}) => {
+  return prisma.project.create({
     data: {
       id: data.id,
       name: data.name,
       url: data.url ?? null,
-      rootPath: data.rootPath,
-      manifest: data.manifest as Prisma.InputJsonValue,
+      rootPath: "",
+      totalSize: 0,
+      totalFiles: 0,
+      manifest: [] as Prisma.InputJsonValue,
     },
   });
+};
 
-export { createProject };
+const updateProjectWithArchive = async (data: {
+  id: string;
+  rootPath: string;
+  totalSize: number;
+  totalFiles?: number;
+  manifest: ManifestNode[];
+}) => {
+  return prisma.project.update({
+    where: { id: data.id },
+    data: {
+      rootPath: data.rootPath,
+      totalSize: data.totalSize,
+      totalFiles: data.totalFiles,
+      manifest: data.manifest as unknown as Prisma.InputJsonValue,
+    },
+  });
+};
+
+const deleteProject = async (id: string) => {
+  return prisma.project.delete({ where: { id } });
+};
+
+export { createProjectMeta, updateProjectWithArchive, deleteProject };

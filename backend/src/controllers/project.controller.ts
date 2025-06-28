@@ -1,36 +1,106 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { saveAndUnzip } from "../services/storage.service";
+import { randomUUID } from "node:crypto";
+import { saveAndUnzip, deleteProjectFolder } from "../services/storage.service";
 import { buildManifest } from "../services/manifest.service";
-import { createProject } from "../models/project.model";
-import { Prisma } from "@prisma/client";
+import {
+  createProjectMeta,
+  updateProjectWithArchive,
+  deleteProject,
+} from "../models/project.model";
+import { prisma } from "../lib/prisma";
 
-interface MultipartField {
-  value: string;
-}
-
-const createProjectController = async (
-  req: FastifyRequest,
+const createProjectMetaController = async (
+  req: FastifyRequest<{ Body: { name: string; url?: string } }>,
   rep: FastifyReply
 ) => {
-  const upload = await (req as any).file();
-  if (!upload) return rep.status(400).send({ error: "zip file required" });
+  const { name, url } = req.body ?? {};
+  if (!name?.trim()) return rep.status(400).send({ error: "name required" });
 
-  const fields = upload.fields as Record<string, MultipartField>;
-  const projectName = fields?.name?.value ?? upload.filename;
-  const githubUrl = fields?.url?.value ?? null;
-
-  const { projectId, rootPath } = await saveAndUnzip(upload.file);
-  const manifest = await buildManifest(rootPath);
-
-  const project = await createProject({
-    id: projectId,
-    name: projectName,
-    url: githubUrl || undefined,
-    rootPath,
-    manifest: manifest as unknown as Prisma.JsonValue,
-  });
+  const id = randomUUID();
+  const project = await createProjectMeta({ id, name, url });
 
   return rep.status(201).send({ project });
 };
 
-export { createProjectController };
+const uploadArchiveController = async (
+  req: FastifyRequest<{ Params: { projectId: string } }>,
+  rep: FastifyReply
+) => {
+  const { projectId } = req.params;
+  const zipPart = await (req as any).file();
+  if (!zipPart) return rep.status(400).send({ error: "zip missing" });
+
+  const exists = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!exists) return rep.status(404).send({ error: "project not found" });
+
+  const { rootPath } = await saveAndUnzip(zipPart.file);
+  const { manifest, totalSize } = await buildManifest(rootPath);
+  const totalFiles = manifest.length;
+
+  await updateProjectWithArchive({
+    id: projectId,
+    rootPath,
+    totalSize,
+    totalFiles,
+    manifest,
+  });
+
+  return rep.status(201).send({ totalSize, totalFiles });
+};
+
+const deleteProjectController = async (
+  req: FastifyRequest<{ Params: { projectId: string } }>,
+  rep: FastifyReply
+) => {
+  const { projectId } = req.params;
+  try {
+    await deleteProject(projectId);
+    await deleteProjectFolder(projectId);
+    return rep.status(204).send();
+  } catch {
+    return rep.status(500).send({ error: "delete failed" });
+  }
+};
+
+const getProjectsController = async (
+  _req: FastifyRequest,
+  rep: FastifyReply
+) => {
+  const projects = await prisma.project.findMany({
+    select: {
+      id: true,
+      name: true,
+      totalSize: true,
+      totalFiles: true,
+      url: true,
+    },
+  });
+  rep.send({ projects });
+};
+
+const getProjectByIdController = async (
+  req: FastifyRequest<{ Params: { projectId: string } }>,
+  rep: FastifyReply
+) => {
+  const project = await prisma.project.findUnique({
+    where: { id: req.params.projectId },
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      totalSize: true,
+      totalFiles: true,
+      manifest: true,
+    },
+  });
+  if (!project) return rep.status(404).send({ error: "not found" });
+  rep.send({ project });
+};
+
+export {
+  createProjectMetaController as createProjectMeta,
+  uploadArchiveController as uploadArchive,
+  deleteProjectController,
+  getProjectsController,
+  getProjectByIdController,
+};
