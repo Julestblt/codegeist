@@ -59,27 +59,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 w-full">
             <Badge
               variant={"secondary"}
               className="w-12 h-12 flex items-center justify-center p-3"
             >
               <FolderOpen className="!h-full !w-full" />
             </Badge>
-            <div>
-              <h3 className="font-semibold truncate max-w-32 transition-colors">
-                {project.name}
-              </h3>
-              {/* <Badge variant={getStatusVariant()}>
-                <span className="capitalize">
-                  {project.status === "completed"
-                    ? "Completed"
-                    : project.status === "analyzing"
-                    ? "Analyzing"
-                    : "Error"}
-                </span>
-              </Badge> */}
-            </div>
+            <h3 className="font-semibold">{project.name}</h3>
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import React from "react";
 import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "./header";
 
 interface LayoutProps {
@@ -7,7 +8,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const currentPath = window.location.pathname;
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   if (currentPath.startsWith("/projects/")) {
     return (

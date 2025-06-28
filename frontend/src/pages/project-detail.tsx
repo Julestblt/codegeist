@@ -19,6 +19,8 @@ const ProjectDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "CodeGeist - Project Detail";
+
     if (!projectId) return;
 
     (async () => {

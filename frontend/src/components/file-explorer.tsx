@@ -8,10 +8,6 @@ import {
 } from "lucide-react";
 import type { FileNode } from "@/types";
 
-/* ------------------------------------------------------------------ */
-/* Helpers : Manifest plat ▸ arbre + tri                               */
-/* ------------------------------------------------------------------ */
-
 interface ManifestEntry {
   path: string;
   size: number;
@@ -60,10 +56,6 @@ function buildTree(manifest: ManifestEntry[]): FileNode[] {
   return objToArr(root);
 }
 
-/* ------------------------------------------------------------------ */
-/* FileExplorer component                                             */
-/* ------------------------------------------------------------------ */
-
 interface FileExplorerProps {
   files: ManifestEntry[];
   selectedFileId?: string;
@@ -85,21 +77,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
       return n;
     });
 
-  const icon = (ext?: string) => {
-    const cls = "w-4 h-4";
-    const map: Record<string, string> = {
-      js: "text-yellow-600",
-      jsx: "text-yellow-600",
-      ts: "text-blue-600",
-      tsx: "text-blue-600",
-      html: "text-orange-600",
-      css: "text-pink-600",
-      scss: "text-pink-600",
-      json: "text-green-600",
-      md: "text-gray-600",
-    };
-    const color = map[ext ?? ""] ?? "text-foreground";
-    return { component: File, class: `${cls} ${color}` };
+  const icon = () => {
+    return { component: File };
   };
 
   const fmtSize = (b: number) => (b ? `${Math.round(b / 102.4) / 10} KB` : "");
@@ -109,22 +88,22 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     const isDir = n.type === "folder";
     const isOpen = expanded.has(n.id);
     const isSel = selectedFileId === n.id;
-    const FileIcon = icon(n.extension);
+    const FileIcon = icon();
 
     return (
       <div key={n.id}>
         <div
           className={`flex items-center px-2 py-1.5 cursor-pointer rounded-md transition-colors
-            ${isSel ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            ${isSel ? "bg-primary text-foreground" : "hover:bg-muted"}`}
           style={{ paddingLeft: indent }}
           onClick={() => (isDir ? toggle(n.id) : onFileSelect(n))}
         >
           {isDir && (
             <div className="w-4 h-4 mr-1 flex-shrink-0">
               {isOpen ? (
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               )}
             </div>
           )}
@@ -132,12 +111,12 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
           <div className="w-4 h-4 mr-2 flex-shrink-0">
             {isDir ? (
               isOpen ? (
-                <FolderOpen className="w-4 h-4 text-blue-500" />
+                <FolderOpen className="w-4 h-4 text-primary" />
               ) : (
-                <Folder className="w-4 h-4 text-blue-500" />
+                <Folder className="w-4 h-4 text-primary" />
               )
             ) : (
-              <FileIcon.component className={FileIcon.class} />
+              <FileIcon.component className="w-4 h-4" />
             )}
           </div>
 

@@ -21,7 +21,7 @@ const Header: React.FC = () => {
 
   const getCurrentView = () => {
     if (location.pathname.startsWith("/project/create")) return "projects";
-    return "dashboard";
+    else if (location.pathname === "/") return "dashboard";
   };
 
   const currentView = getCurrentView();
@@ -34,7 +34,7 @@ const Header: React.FC = () => {
           onClick={() => navigate("/")}
         >
           <div className="relative">
-            <Shield className="w-8 h-8 " />
+            <Shield fill="#ffffff" className="w-8 h-8 " />
             <Zap
               fill="#155dfc"
               className="w-4 h-4 absolute -top-0.5 -right-0.5 text-primary"

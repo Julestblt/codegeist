@@ -1,5 +1,7 @@
 import type { Project } from "@/services/api";
 import { format } from "date-fns";
+import { Button } from "../ui/button";
+import { Radar } from "lucide-react";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -37,12 +39,10 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
           )}
         </div>
 
-        {/* {project.analysis && (
-          <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
-            {project.analysis.summary.total} issues (
-            {project.analysis.summary.critical} critical)
-          </Badge>
-        )} */}
+        <Button size="default" className="text-white">
+          <Radar className="w-4 h-4 mr-1 " />
+          Re-analyser
+        </Button>
       </div>
     </header>
   );
