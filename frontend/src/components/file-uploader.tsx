@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { AlertCircle } from "lucide-react";
-import { processZipFile } from "@/utils/file-processor";
-import type { Project } from "@/types";
+import { createProject, uploadProjectZip } from "@/services/api";
+import type { Project } from "@/services/api";
 import FileDropZone from "@/components/upload/file-drop-zone";
 import ProjectConfigForm from "@/components/upload/project-config-form";
 
@@ -11,7 +11,7 @@ interface FileUploaderProps {
 
 const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, _] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState("");
@@ -32,29 +32,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUpload }) => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedFile || !projectName.trim()) {
-      setError("Please provide a project name");
-      return;
-    }
-
-    setIsProcessing(true);
-    setError(null);
+    if (!selectedFile) return;
 
     try {
-      const project = await processZipFile(selectedFile);
-      const enhancedProject = {
-        ...project,
-        name: projectName.trim(),
-        gitUrl: gitUrl.trim() || undefined,
-      };
-      onUpload(enhancedProject);
-    } catch (err) {
-      setError(
-        "Failed to process ZIP file. Make sure it contains valid code files."
-      );
-      console.error("File processing error:", err);
-    } finally {
-      setIsProcessing(false);
+      const id = await createProject(projectName, gitUrl.trim() || null);
+      const { project } = await uploadProjectZip(id, selectedFile);
+
+      onUpload(project);
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 

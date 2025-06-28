@@ -2,7 +2,7 @@ import React from "react";
 import { Calendar, FileText, HardDrive, FolderOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/types";
+import type { Project } from "@/services/api";
 
 interface ProjectCardProps {
   project: Project;
@@ -10,14 +10,17 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("fr-FR", {
+  const formatDate = (date: string | Date | undefined) => {
+    if (!date) return "N/A";
+    const d = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(d.getTime())) return "N/A";
+    return new Intl.DateTimeFormat("en-EN", {
       month: "short",
       day: "numeric",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }).format(date);
+    }).format(d);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -28,26 +31,28 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
-  const getTotalVulnerabilities = () => project.analysis?.summary.total || 0;
-  const getCriticalVulnerabilities = () =>
-    project.analysis?.summary.critical || 0;
+  console.log(project);
 
-  const getStatusVariant = ():
-    | "default"
-    | "secondary"
-    | "destructive"
-    | "outline" => {
-    switch (project.status) {
-      case "completed":
-        return "secondary";
-      case "analyzing":
-        return "secondary";
-      case "error":
-        return "destructive";
-      default:
-        return "outline";
-    }
-  };
+  // const getTotalVulnerabilities = () => project.analysis?.summary.total || 0;
+  // const getCriticalVulnerabilities = () =>
+  //   project.analysis?.summary.critical || 0;
+
+  // const getStatusVariant = ():
+  //   | "default"
+  //   | "secondary"
+  //   | "destructive"
+  //   | "outline" => {
+  //   switch (project.status) {
+  //     case "completed":
+  //       return "secondary";
+  //     case "analyzing":
+  //       return "secondary";
+  //     case "error":
+  //       return "destructive";
+  //     default:
+  //       return "outline";
+  //   }
+  // };
 
   return (
     <Card
@@ -67,7 +72,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
               <h3 className="font-semibold truncate max-w-32 transition-colors">
                 {project.name}
               </h3>
-              <Badge variant={getStatusVariant()}>
+              {/* <Badge variant={getStatusVariant()}>
                 <span className="capitalize">
                   {project.status === "completed"
                     ? "Completed"
@@ -75,7 +80,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
                     ? "Analyzing"
                     : "Error"}
                 </span>
-              </Badge>
+              </Badge> */}
             </div>
           </div>
         </div>
@@ -83,19 +88,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
         <div className="space-y-3 mb-4">
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="w-4 h-4 mr-2" />
-            {formatDate(project.uploadDate)}
+            {formatDate(project.createdAt)}
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <FileText className="w-4 h-4 mr-2" />
-            {project.fileCount} files
+            {project.totalFiles} files
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <HardDrive className="w-4 h-4 mr-2" />
-            {formatFileSize(project.size)}
+            {formatFileSize(project.totalSize as number)}
           </div>
         </div>
 
-        {project.analysis && (
+        {/* {project.analysis && (
           <div className="pt-4 border-t border-muted-foreground">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -120,16 +125,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
-        {project.status === "analyzing" && (
+        {/* {project.status === "analyzing" && (
           <div className="w-full mt-4">
             <p className="text-sm text-muted-foreground mb-1">Analyzing...</p>
             <div className="h-1.5 w-full bg-muted overflow-hidden rounded">
               <div className="progress w-full h-full bg-primary left-right"></div>
             </div>
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

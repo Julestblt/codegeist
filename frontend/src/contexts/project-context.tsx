@@ -1,37 +1,47 @@
-import React, { createContext, useContext } from "react";
-import type { ReactNode } from "react";
-import { useProjects } from "@/hooks/use-projects";
-import type { Project } from "@/types";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { listProjects } from "@/services/api";
+import type { Project } from "@/services/api";
 
-interface ProjectContextType {
+interface ProjectCtx {
   projects: Project[];
-  addProject: (project: Project) => void;
-  updateProject: (projectId: string, updates: Partial<Project>) => void;
-  deleteProject: (projectId: string) => void;
+  refresh: () => Promise<void>;
+  addProject: (p: Project) => void;
 }
 
-const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
+const Ctx = createContext<ProjectCtx | null>(null);
 
-export const useProjectContext = () => {
-  const context = useContext(ProjectContext);
-  if (context === undefined) {
-    throw new Error("useProjectContext must be used within a ProjectProvider");
-  }
-  return context;
-};
+export const ProjectProvider = ({ children }: { children: ReactNode }) => {
+  const [projects, setProjects] = useState<Project[]>([]);
 
-interface ProjectProviderProps {
-  children: ReactNode;
-}
+  const refresh = async () => {
+    try {
+      setProjects(await listProjects());
+    } catch (e) {
+      console.error("Cannot fetch projects:", e);
+    }
+  };
 
-export const ProjectProvider: React.FC<ProjectProviderProps> = ({
-  children,
-}) => {
-  const projectsData = useProjects();
+  const addProject = (p: Project) => setProjects((prev) => [...prev, p]);
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   return (
-    <ProjectContext.Provider value={projectsData}>
+    <Ctx.Provider value={{ projects, refresh, addProject }}>
       {children}
-    </ProjectContext.Provider>
+    </Ctx.Provider>
   );
+};
+
+export const useProjectContext = () => {
+  const ctx = useContext(Ctx);
+  if (!ctx) throw new Error("ProjectProvider missing");
+  return ctx;
 };

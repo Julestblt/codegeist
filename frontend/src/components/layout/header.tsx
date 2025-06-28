@@ -35,7 +35,10 @@ const Header: React.FC = () => {
         >
           <div className="relative">
             <Shield className="w-8 h-8 " />
-            <Zap className="w-4 h-4 absolute -top-0.5 -right-0.5 text-primary" />
+            <Zap
+              fill="#155dfc"
+              className="w-4 h-4 absolute -top-0.5 -right-0.5 text-primary"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-clip-text ">CodeGeist</h1>

@@ -5,7 +5,7 @@ import { Badge } from "../ui/badge";
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
+  value?: string | number;
   icon: LucideIcon;
   iconColor: string;
 }

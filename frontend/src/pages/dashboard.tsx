@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/contexts/project-context";
 import ProjectDashboard from "@/components/project-dashboard";
-import type { Project } from "@/types";
+import type { Project } from "@/services/api";
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();

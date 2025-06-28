@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/contexts/project-context";
 import FileUploader from "@/components/file-uploader";
-import type { Project } from "@/types";
+import type { Project } from "@/services/api";
 
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const ProjectsPage: React.FC = () => {
 
   const handleProjectUpload = async (project: Project) => {
     addProject(project);
-    navigate(`/projects/${project.id}`);
+    navigate(`/`);
   };
 
   return (

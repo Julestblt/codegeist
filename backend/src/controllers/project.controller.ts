@@ -37,7 +37,7 @@ const uploadArchiveController = async (
   const { manifest, totalSize } = await buildManifest(rootPath);
   const totalFiles = manifest.length;
 
-  await updateProjectWithArchive({
+  const updatedProject = await updateProjectWithArchive({
     id: projectId,
     rootPath,
     totalSize,
@@ -45,7 +45,7 @@ const uploadArchiveController = async (
     manifest,
   });
 
-  return rep.status(201).send({ totalSize, totalFiles });
+  return rep.status(201).send({ project: updatedProject });
 };
 
 const deleteProjectController = async (
@@ -73,6 +73,8 @@ const getProjectsController = async (
       totalSize: true,
       totalFiles: true,
       url: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
   rep.send({ projects });

@@ -8,7 +8,7 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
-import type { Project } from "@/types";
+import type { Project } from "@/services/api";
 import { StatsCard, ProjectCard } from "./dashboard/";
 import { Badge } from "./ui/badge";
 
@@ -22,17 +22,17 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   onProjectSelect,
 }) => {
   const totalProjects = projects.length;
-  const completedProjects = projects.filter(
-    (p) => p.status === "completed"
-  ).length;
-  const totalVulnerabilities = projects.reduce(
-    (sum, p) => sum + (p.analysis?.summary.total || 0),
-    0
-  );
-  const criticalVulnerabilities = projects.reduce(
-    (sum, p) => sum + (p.analysis?.summary.critical || 0),
-    0
-  );
+  // const completedProjects = projects.filter(
+  //   (p) => p.status === "completed"
+  // ).length;
+  // const totalVulnerabilities = projects.reduce(
+  //   (sum, p) => sum + (p.analysis?.summary.total || 0),
+  //   0
+  // );
+  // const criticalVulnerabilities = projects.reduce(
+  //   (sum, p) => sum + (p.analysis?.summary.critical || 0),
+  //   0
+  // );
 
   if (projects.length === 0) {
     return (
@@ -95,19 +95,19 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
             />
             <StatsCard
               title="Analyzed"
-              value={completedProjects}
+              // value={completedProjects}
               icon={CheckCircle}
               iconColor="text-emerald-600"
             />
             <StatsCard
               title="Total Issues"
-              value={totalVulnerabilities}
+              // value={totalVulnerabilities}
               icon={AlertTriangle}
               iconColor="text-yellow-600"
             />
             <StatsCard
               title="Critical"
-              value={criticalVulnerabilities}
+              // value={criticalVulnerabilities}
               icon={Shield}
               iconColor="text-red-600"
             />
