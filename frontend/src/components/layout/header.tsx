@@ -14,13 +14,13 @@ const Header: React.FC = () => {
       path: "/",
     },
     projects: {
-      label: "Projects",
-      path: "/projects",
+      label: "Create Project",
+      path: "/project/create",
     },
   };
 
   const getCurrentView = () => {
-    if (location.pathname.startsWith("/projects")) return "projects";
+    if (location.pathname.startsWith("/project/create")) return "projects";
     return "dashboard";
   };
 

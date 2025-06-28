@@ -21,7 +21,7 @@ const ProjectDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!currentProject) {
-      navigate("/projects");
+      navigate("/project/create");
       return;
     }
 

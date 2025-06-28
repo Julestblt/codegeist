@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "../ui/badge";
 
 interface ProjectConfigFormProps {
   selectedFile: File;
@@ -44,8 +45,8 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
-      <Card className="shadow-xl border-gray-100 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 p-0">
+      <Card className="shadow-xl overflow-hidden pt-0 gap-0">
+        <CardHeader className="bg-primary p-0">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -61,12 +62,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   </p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onCancel}
-                className="text-white/80 hover:text-white hover:bg-white/20"
-              >
+              <Button variant="ghost" size="icon" onClick={onCancel}>
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -74,22 +70,20 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
         </CardHeader>
 
         <CardContent className="p-0">
-          <div className="px-8 py-6 bg-gray-50 border-b border-gray-100">
+          <div className="px-8 py-6 bg-muted border-b">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FileArchive className="w-6 h-6 text-blue-600" />
+                <FileArchive className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">
-                  {selectedFile.name}
-                </h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold">{selectedFile.name}</h4>
+                <p className="text-sm text-muted-foreground">
                   {formatFileSize(selectedFile.size)} • ZIP Archive
                 </p>
               </div>
-              <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              <Badge variant={"default"} className="text-white">
                 Ready to process
-              </div>
+              </Badge>
             </div>
           </div>
 
@@ -97,7 +91,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
             <div className="space-y-3">
               <label
                 htmlFor="projectName"
-                className="block text-sm font-semibold text-gray-900"
+                className="block text-sm font-semibold"
               >
                 Project Name *
               </label>
@@ -116,16 +110,13 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   <FolderOpen className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Choose a descriptive name for your project
               </p>
             </div>
 
             <div className="space-y-3">
-              <label
-                htmlFor="gitUrl"
-                className="block text-sm font-semibold text-gray-900"
-              >
+              <label htmlFor="gitUrl" className="block text-sm font-semibold">
                 Git Repository URL
                 <span className="text-gray-500 font-normal ml-1">
                   (Optionnel)
@@ -145,9 +136,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                   <Github className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
-                Link to your repository for better tracking and collaboration
-              </p>
+              <p className="text-sm text-gray-600">Link to the repository</p>
             </div>
 
             {error && (
@@ -160,7 +149,7 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-6">
               <Button
                 variant="outline"
                 onClick={onCancel}
@@ -172,17 +161,18 @@ const ProjectConfigForm: React.FC<ProjectConfigFormProps> = ({
                 onClick={onSubmit}
                 disabled={isProcessing || !projectName.trim()}
                 variant="default"
+                className="text-white"
                 size="lg"
               >
                 {isProcessing ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Traitement...
+                    Processing...
                   </>
                 ) : (
                   <>
                     <Upload className="w-5 h-5 mr-2" />
-                    Start Analysis
+                    Import Project
                   </>
                 )}
               </Button>
