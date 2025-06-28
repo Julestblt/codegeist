@@ -11,17 +11,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (currentPath.startsWith("/projects/")) {
     return (
-      <div className="h-screen">
+      <div className="h-screen flex flex-col overflow-hidden">
         <Header />
-        {children}
+        <div className="flex-1 overflow-hidden">{children}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-y-auto">
       <Header />
-      {children}
+      <div className="flex-1">{children}</div>
     </div>
   );
 };

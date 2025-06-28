@@ -47,38 +47,34 @@ const ProjectDetailPage: React.FC = () => {
   if (error || !project) return null;
 
   return (
-    <>
-      <div className="flex flex-col h-full overflow-hidden">
-        <ProjectHeader project={project} />
-        <div className="flex-1 flex overflow-hidden">
-          <div className="w-80 border-r flex-shrink-0">
-            <FileExplorer
-              files={project.manifest as Manifest[]}
-              selectedFileId={selectedFile?.id}
-              onFileSelect={handleFileSelect}
-            />
-          </div>
+    <div className="h-full flex flex-col overflow-hidden">
+      <ProjectHeader project={project} />
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="w-80 border-r flex-shrink-0 overflow-hidden flex flex-col">
+          <FileExplorer
+            files={project.manifest as Manifest[]}
+            selectedFileId={selectedFile?.id}
+            onFileSelect={handleFileSelect}
+          />
+        </div>
 
-          <div className="flex-1 border-r border-muted overflow-y-scroll">
-            <CodeViewer
-              file={selectedFile}
-              vulnerabilities={(project as any).analysis?.vulnerabilities ?? []}
-              path={selectedFile?.id || null}
-              projectId={project.id}
-            />
-          </div>
+        <div className="flex-1 border-r border-muted overflow-hidden flex flex-col">
+          <CodeViewer
+            file={selectedFile}
+            vulnerabilities={(project as any).analysis?.vulnerabilities ?? []}
+            path={selectedFile?.id || null}
+            projectId={project.id}
+          />
+        </div>
 
-          <div className="w-96 flex-shrink-0 flex flex-col overflow-auto">
-            <div className="flex-1 overflow-hidden">
-              <AnalysisPanel
-                analysis={(project as any).analysis ?? null}
-                onVulnerabilitySelect={handleVulnSelect}
-              />
-            </div>
-          </div>
+        <div className="w-96 flex-shrink-0 overflow-hidden flex flex-col">
+          <AnalysisPanel
+            analysis={(project as any).analysis ?? null}
+            onVulnerabilitySelect={handleVulnSelect}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -116,13 +116,12 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
 
                 return (
                   <div key={idx} className="flex">
-                    {/* numéro de ligne */}
                     <div
-                      className={`w-12 px-2 py-1 text-right text-xs select-none border-r
+                      className={`w-12 px-2 py-1 text-right text-xs select-none border-r 
                         ${
                           has
                             ? "bg-red-50 text-red-600"
-                            : "bg-gray-50 text-gray-500"
+                            : "bg-muted text-gray-500"
                         }`}
                     >
                       {lineNo}

@@ -156,11 +156,11 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   };
 
   return (
-    <div className="h-full">
-      <div className="p-4 border-b">
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b flex-shrink-0">
         <h3 className="text-lg font-semibold">Files</h3>
       </div>
-      <div className="overflow-y-auto h-full">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-2 space-y-1">{tree.map((n) => renderNode(n))}</div>
       </div>
     </div>
