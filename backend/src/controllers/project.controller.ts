@@ -8,6 +8,8 @@ import {
   deleteProject,
 } from "../models/project.model";
 import { prisma } from "../lib/prisma";
+import path from "node:path";
+import { readFile } from "node:fs/promises";
 
 const createProjectMetaController = async (
   req: FastifyRequest<{ Body: { name: string; url?: string } }>,
@@ -99,10 +101,42 @@ const getProjectByIdController = async (
   rep.send({ project });
 };
 
+const getProjectFileController = async (
+  req: FastifyRequest<{
+    Params: { projectId: string };
+    Querystring: { path?: string };
+  }>,
+  rep: FastifyReply
+) => {
+  const { projectId } = req.params;
+  const relPath = req.query.path;
+  if (!relPath)
+    return rep.status(400).send({ error: "query param `path` required" });
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { rootPath: true },
+  });
+  if (!project) return rep.status(404).send({ error: "project not found" });
+
+  const absRoot = path.resolve(project.rootPath);
+  const absFile = path.resolve(absRoot, relPath);
+  if (!absFile.startsWith(absRoot))
+    return rep.status(400).send({ error: "path traversal detected" });
+
+  try {
+    const content = await readFile(absFile, "utf8");
+    return rep.type("text/plain").send(content);
+  } catch {
+    return rep.status(404).send({ error: "file not found" });
+  }
+};
+
 export {
-  createProjectMetaController as createProjectMeta,
-  uploadArchiveController as uploadArchive,
+  createProjectMetaController,
+  uploadArchiveController,
   deleteProjectController,
   getProjectsController,
   getProjectByIdController,
+  getProjectFileController,
 };
