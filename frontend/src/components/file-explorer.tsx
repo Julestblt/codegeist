@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ChevronRight,
   ChevronDown,
@@ -8,8 +8,64 @@ import {
 } from "lucide-react";
 import type { FileNode } from "@/types";
 
+/* ------------------------------------------------------------------ */
+/* Helpers : Manifest plat ▸ arbre + tri                               */
+/* ------------------------------------------------------------------ */
+
+interface ManifestEntry {
+  path: string;
+  size: number;
+  isDir: boolean;
+}
+
+function sortNodes(a: FileNode, b: FileNode) {
+  if (a.type !== b.type) return a.type === "folder" ? -1 : 1; // dossiers d'abord
+  return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+}
+
+function buildTree(manifest: ManifestEntry[]): FileNode[] {
+  const root: Record<string, FileNode> = {};
+
+  manifest.forEach((m) => {
+    const parts = m.path.split("/");
+    let lvl = root;
+    let accPath = "";
+
+    parts.forEach((seg, idx) => {
+      accPath = accPath ? `${accPath}/${seg}` : seg;
+      const last = idx === parts.length - 1;
+      if (!lvl[seg]) {
+        lvl[seg] = {
+          id: accPath,
+          name: seg,
+          type: last ? (m.isDir ? "folder" : "file") : "folder",
+          size: last ? m.size : 0,
+          extension: last && !m.isDir ? seg.split(".").pop() : undefined,
+          children: {},
+        } as unknown as FileNode;
+      }
+      if (!last) lvl = (lvl[seg] as FileNode).children!;
+    });
+  });
+
+  const objToArr = (o: Record<string, FileNode>): FileNode[] =>
+    Object.values(o)
+      .map((node) =>
+        node.type === "folder"
+          ? { ...node, children: objToArr(node.children!) }
+          : node
+      )
+      .sort(sortNodes);
+
+  return objToArr(root);
+}
+
+/* ------------------------------------------------------------------ */
+/* FileExplorer component                                             */
+/* ------------------------------------------------------------------ */
+
 interface FileExplorerProps {
-  files: FileNode[];
+  files: ManifestEntry[];
   selectedFileId?: string;
   onFileSelect: (file: FileNode) => void;
 }
@@ -19,77 +75,53 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   selectedFileId,
   onFileSelect,
 }) => {
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set()
-  );
+  const tree = useMemo(() => buildTree(files), [files]);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-  const toggleFolder = (folderId: string) => {
-    const newExpanded = new Set(expandedFolders);
-    if (newExpanded.has(folderId)) {
-      newExpanded.delete(folderId);
-    } else {
-      newExpanded.add(folderId);
-    }
-    setExpandedFolders(newExpanded);
+  const toggle = (id: string) =>
+    setExpanded((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+
+  const icon = (ext?: string) => {
+    const cls = "w-4 h-4";
+    const map: Record<string, string> = {
+      js: "text-yellow-600",
+      jsx: "text-yellow-600",
+      ts: "text-blue-600",
+      tsx: "text-blue-600",
+      html: "text-orange-600",
+      css: "text-pink-600",
+      scss: "text-pink-600",
+      json: "text-green-600",
+      md: "text-gray-600",
+    };
+    const color = map[ext ?? ""] ?? "text-foreground";
+    return { component: File, class: `${cls} ${color}` };
   };
 
-  const getFileIcon = (extension?: string) => {
-    const iconClass = "w-4 h-4";
+  const fmtSize = (b: number) => (b ? `${Math.round(b / 102.4) / 10} KB` : "");
 
-    switch (extension) {
-      case "js":
-      case "jsx":
-        return { component: File, class: `${iconClass} text-yellow-600` };
-      case "ts":
-      case "tsx":
-        return { component: File, class: `${iconClass} text-blue-600` };
-      case "html":
-        return { component: File, class: `${iconClass} text-orange-600` };
-      case "css":
-      case "scss":
-        return { component: File, class: `${iconClass} text-pink-600` };
-      case "json":
-        return { component: File, class: `${iconClass} text-green-600` };
-      case "md":
-        return { component: File, class: `${iconClass} text-gray-600` };
-      default:
-        return { component: File, class: `${iconClass} text-gray-500` };
-    }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-  };
-
-  const renderNode = (node: FileNode, depth: number = 0): React.ReactNode => {
-    const isExpanded = expandedFolders.has(node.id);
-    const isSelected = selectedFileId === node.id;
-    const paddingLeft = depth * 20 + 8;
-
-    const FileIcon = getFileIcon(node.extension);
+  const renderNode = (n: FileNode, depth = 0): React.ReactNode => {
+    const indent = depth * 20 + 8;
+    const isDir = n.type === "folder";
+    const isOpen = expanded.has(n.id);
+    const isSel = selectedFileId === n.id;
+    const FileIcon = icon(n.extension);
 
     return (
-      <div key={node.id}>
+      <div key={n.id}>
         <div
-          className={`flex items-center px-2 py-1.5 cursor-pointer hover:bg-gray-100 rounded-md transition-colors ${
-            isSelected ? "bg-blue-50 text-blue-700" : "text-gray-700"
-          }`}
-          style={{ paddingLeft: `${paddingLeft}px` }}
-          onClick={() => {
-            if (node.type === "folder") {
-              toggleFolder(node.id);
-            } else {
-              onFileSelect(node);
-            }
-          }}
+          className={`flex items-center px-2 py-1.5 cursor-pointer rounded-md transition-colors
+            ${isSel ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          style={{ paddingLeft: indent }}
+          onClick={() => (isDir ? toggle(n.id) : onFileSelect(n))}
         >
-          {node.type === "folder" && (
+          {isDir && (
             <div className="w-4 h-4 mr-1 flex-shrink-0">
-              {isExpanded ? (
+              {isOpen ? (
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               ) : (
                 <ChevronRight className="w-4 h-4 text-gray-500" />
@@ -98,8 +130,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
           )}
 
           <div className="w-4 h-4 mr-2 flex-shrink-0">
-            {node.type === "folder" ? (
-              isExpanded ? (
+            {isDir ? (
+              isOpen ? (
                 <FolderOpen className="w-4 h-4 text-blue-500" />
               ) : (
                 <Folder className="w-4 h-4 text-blue-500" />
@@ -109,31 +141,27 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
             )}
           </div>
 
-          <span className="text-sm font-medium truncate">{node.name}</span>
+          <span className="text-sm truncate">{n.name}</span>
 
-          {node.type === "file" && node.size && (
-            <span className="text-xs text-gray-500 ml-auto flex-shrink-0">
-              {formatFileSize(node.size)}
-            </span>
+          {!isDir && n.size && (
+            <span className="text-xs ml-auto">{fmtSize(n.size)}</span>
           )}
         </div>
 
-        {node.type === "folder" && isExpanded && node.children && (
-          <div>
-            {node.children.map((child) => renderNode(child, depth + 1))}
-          </div>
+        {isDir && isOpen && n.children && (
+          <div>{n.children.map((c) => renderNode(c, depth + 1))}</div>
         )}
       </div>
     );
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Files</h3>
+    <div className="h-full">
+      <div className="p-4 border-b">
+        <h3 className="text-lg font-semibold">Files</h3>
       </div>
-      <div className="p-2 space-y-1">
-        {files.map((file) => renderNode(file))}
+      <div className="overflow-y-auto h-full">
+        <div className="p-2 space-y-1">{tree.map((n) => renderNode(n))}</div>
       </div>
     </div>
   );

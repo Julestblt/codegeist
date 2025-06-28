@@ -31,8 +31,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
-  console.log(project);
-
   // const getTotalVulnerabilities = () => project.analysis?.summary.total || 0;
   // const getCriticalVulnerabilities = () =>
   //   project.analysis?.summary.critical || 0;

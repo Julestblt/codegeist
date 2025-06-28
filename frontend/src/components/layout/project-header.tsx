@@ -1,94 +1,50 @@
-import React from "react";
-import { Play, AlertCircle, Activity } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/types/";
+import type { Project } from "@/services/api";
+import { format } from "date-fns";
 
 interface ProjectHeaderProps {
   project: Project;
-  isAnalyzing: boolean;
-  onAnalyze: () => void;
 }
 
-const ProjectHeader: React.FC<ProjectHeaderProps> = ({
-  project,
-  isAnalyzing,
-  onAnalyze,
-}) => {
-  const getStatusBadge = () => {
-    switch (project.status) {
-      case "analyzing":
-        return (
-          <Badge
-            variant="secondary"
-            className="bg-blue-50 text-blue-700 border-blue-200"
-          >
-            <Activity className="w-4 h-4 mr-2 animate-pulse" />
-            Analyzing...
-          </Badge>
-        );
-      case "completed":
-        return (
-          project.analysis && (
-            <div className="flex items-center space-x-4">
-              <div className="text-sm">
-                <span className="font-medium text-gray-900">
-                  {project.analysis.summary.total} issues found
-                </span>
-                <span className="text-gray-600 ml-2">
-                  ({project.analysis.summary.critical} critical)
-                </span>
-              </div>
-            </div>
-          )
-        );
-      case "error":
-        return (
-          <Badge
-            variant="destructive"
-            className="bg-red-50 text-red-700 border-red-200"
-          >
-            <AlertCircle className="w-4 h-4 mr-2" />
-            Analysis failed
-          </Badge>
-        );
-      default:
-        return null;
-    }
-  };
+const kb = (bytes: number | undefined) =>
+  bytes ? `${Math.round(bytes / 1024)} KB` : "—";
+
+const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
+  const uploaded = project.createdAt
+    ? format(new Date(project.createdAt), "yyyy-MM-dd HH:mm")
+    : "—";
 
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="border-b px-6 py-4">
+      <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            {project.name}
-          </h2>
-          <p className="text-sm text-gray-600">
-            {project.fileCount} files • Uploaded on{" "}
-            {project.uploadDate.toLocaleDateString("en-US")}
+          <h2 className="text-xl font-semibold ">{project.name}</h2>
+
+          <p className="text-sm text-muted-foreground">
+            {project.totalFiles ?? 0} files · {kb(project.totalSize)} ·
+            Uploaded&nbsp;
+            {uploaded}
           </p>
-        </div>
 
-        <div className="flex items-center space-x-3">
-          {getStatusBadge()}
-
-          {project.status === "completed" && (
-            <Button onClick={onAnalyze} disabled={isAnalyzing} size="default">
-              <Play className="w-4 h-4 mr-2" />
-              Re-analyze
-            </Button>
-          )}
-
-          {project.status === "error" && (
-            <Button onClick={onAnalyze} variant="outline" size="sm">
-              Retry
-            </Button>
+          {project.url && (
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-primary hover:underline"
+            >
+              {project.url.replace(/^https?:\/\//, "")}
+            </a>
           )}
         </div>
+
+        {/* {project.analysis && (
+          <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
+            {project.analysis.summary.total} issues (
+            {project.analysis.summary.critical} critical)
+          </Badge>
+        )} */}
       </div>
-    </div>
+    </header>
   );
 };
-
 export default ProjectHeader;

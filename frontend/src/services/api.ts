@@ -1,5 +1,11 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api/v1";
 
+export interface Manifest {
+  path: string;
+  size: number;
+  isDir: boolean;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -9,7 +15,7 @@ export interface Project {
   rootPath?: string;
   createdAt?: string;
   updatedAt?: string;
-  manifest?: unknown;
+  manifest?: Manifest[];
 }
 
 type JSONValue = unknown;
@@ -59,6 +65,22 @@ export const uploadProjectZip = async (
     method: "POST",
     body: fd,
   });
+};
+
+export const getFileContent = async (
+  projectId: string,
+  filePath: string
+): Promise<string> => {
+  const res = await fetch(
+    `${API_BASE}/projects/${projectId}/file?path=${encodeURIComponent(
+      filePath
+    )}`
+  );
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "Unknown error");
+    throw new Error(`file ${res.status} – ${msg}`);
+  }
+  return res.text();
 };
 
 export const listProjects = () =>
