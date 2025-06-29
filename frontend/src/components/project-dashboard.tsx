@@ -22,17 +22,6 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   onProjectSelect,
 }) => {
   const totalProjects = projects.length;
-  // const completedProjects = projects.filter(
-  //   (p) => p.status === "completed"
-  // ).length;
-  // const totalVulnerabilities = projects.reduce(
-  //   (sum, p) => sum + (p.analysis?.summary.total || 0),
-  //   0
-  // );
-  // const criticalVulnerabilities = projects.reduce(
-  //   (sum, p) => sum + (p.analysis?.summary.critical || 0),
-  //   0
-  // );
 
   if (projects.length === 0) {
     return (
@@ -41,15 +30,13 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
           <div className="w-24 h-24 mx-auto mb-6 rounded-2xl flex items-center justify-center">
             <FolderOpen className="w-12 h-12" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-3">
-            Welcome to CodeGeist
-          </h3>
-          <p className="text-slate-600 mb-8 max-w-md leading-relaxed">
+          <h3 className="text-2xl font-bold mb-3">Welcome to CodeGeist</h3>
+          <p className="text-muted-foreground mb-8 max-w-md leading-relaxed">
             Start your security journey by uploading your first code project.
             Our AI will analyze it to detect vulnerabilities and provide
             detailed insights.
           </p>
-          <div className="flex items-center justify-center space-x-4 text-sm text-slate-500">
+          <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center">
               <Zap className="w-4 h-4 mr-1" />
               AI Analysis
