@@ -95,6 +95,8 @@ const getProjectByIdController = async (
       totalSize: true,
       totalFiles: true,
       manifest: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
   if (!project) return rep.status(404).send({ error: "not found" });

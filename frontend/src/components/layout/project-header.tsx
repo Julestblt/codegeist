@@ -8,23 +8,21 @@ interface ProjectHeaderProps {
 }
 
 const kb = (bytes: number | undefined) =>
-  bytes ? `${Math.round(bytes / 1024)} KB` : "—";
+  bytes ? `${Math.round(bytes / 1024)} KB` : "0 KB";
 
 const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
-  const uploaded = project.createdAt
-    ? format(new Date(project.createdAt), "yyyy-MM-dd HH:mm")
-    : "—";
+  const uploadedAt = new Date(project.createdAt ?? 0);
 
   return (
     <header className="border-b px-6 py-4">
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold ">{project.name}</h2>
 
           <p className="text-sm text-muted-foreground">
             {project.totalFiles ?? 0} files · {kb(project.totalSize)} ·
-            Uploaded&nbsp;
-            {uploaded}
+            Uploaded&nbsp;at&nbsp;
+            {format(uploadedAt, "dd/MM/yyyy HH:mm")}
           </p>
 
           {project.url && (
@@ -39,9 +37,9 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
           )}
         </div>
 
-        <Button size="default" className="text-white">
+        <Button size="lg" className="text-white font-semibold">
           <Radar className="w-4 h-4 mr-1 " />
-          Re-analyser
+          Analyze
         </Button>
       </div>
     </header>
