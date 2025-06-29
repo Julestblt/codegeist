@@ -18,6 +18,7 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
 }) => {
   const [code, setCode] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [mimeType, setMimeType] = useState<string>("text/plain");
 
   useEffect(() => {
     if (!projectId || !path) {
@@ -28,10 +29,16 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
     let cancel = false;
     setLoading(true);
 
-    getFileContent(projectId, path)
-      .then((txt) => !cancel && setCode(txt))
-      .catch(() => !cancel && setCode("// error loading file"))
-      .finally(() => !cancel && setLoading(false));
+    const fetchContent = async () => {
+      const { content, mimeType } = await getFileContent(projectId, path);
+      if (!cancel) {
+        setCode(content || "");
+        setMimeType(mimeType || "text/plain");
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
 
     return () => {
       cancel = true;
@@ -108,72 +115,76 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
           <p className="p-4 text-sm text-muted-foreground">Loading…</p>
         ) : (
           <div className="h-full overflow-y-auto">
-            <pre className="text-sm whitespace-pre-wrap break-words">
-              {lines.map((line, idx) => {
-                const lineNo = idx + 1;
-                const lineVulns = fileVulns.filter((v) => v.line === lineNo);
-                const has = lineVulns.length > 0;
+            <div className="h-full overflow-y-auto overflow-x-hidden">
+              <div className="text-sm">
+                {lines.map((line, idx) => {
+                  const lineNo = idx + 1;
+                  const lineVulns = fileVulns.filter((v) => v.line === lineNo);
+                  const has = lineVulns.length > 0;
 
-                return (
-                  <div key={idx} className="flex">
-                    <div
-                      className={`w-12 px-2 py-1 text-right text-xs select-none border-r 
-                        ${
-                          has
-                            ? "bg-red-50 text-red-600"
-                            : "bg-muted text-gray-500"
+                  return (
+                    <div key={idx} className="flex">
+                      <div
+                        className={`w-12 px-2 py-1 text-right text-xs select-none border-r
+                          ${
+                            has
+                              ? "bg-red-50 text-red-600"
+                              : "bg-muted text-gray-500"
+                          }`}
+                      >
+                        {lineNo}
+                      </div>
+
+                      <div
+                        className={`flex-1 px-4 py-1 font-mono break-words whitespace-pre-wrap ${
+                          has ? "bg-red-50" : ""
                         }`}
-                    >
-                      {lineNo}
-                    </div>
+                      >
+                        <code>{line || " "}</code>
 
-                    <div
-                      className={`flex-1 px-4 py-1 font-mono ${
-                        has ? "bg-red-50" : ""
-                      }`}
-                    >
-                      <code>{line || " "}</code>
-
-                      {/* vulnérabilités éventuelles */}
-                      {has && (
-                        <div className="mt-2 space-y-2">
-                          {lineVulns.map((v) => {
-                            const Icon = icon(v.type);
-                            return (
-                              <div
-                                key={v.id}
-                                className={`p-3 rounded-lg border ${color(
-                                  v.type
-                                )}`}
-                              >
-                                <div className="flex items-start space-x-2">
-                                  <Icon.component
-                                    className={`w-4 h-4 ${Icon.class}`}
-                                  />
-                                  <div className="flex-1">
-                                    <h4 className="font-medium">{v.title}</h4>
-                                    <p className="text-sm">{v.description}</p>
-                                    <p className="mt-2 text-xs">
-                                      <span className="font-medium">Fix:</span>{" "}
-                                      {v.recommendation}
-                                    </p>
-                                    {v.cweId && (
-                                      <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-xs rounded">
-                                        {v.cweId}
-                                      </span>
-                                    )}
+                        {/* vulnérabilités éventuelles */}
+                        {has && (
+                          <div className="mt-2 space-y-2">
+                            {lineVulns.map((v) => {
+                              const Icon = icon(v.type);
+                              return (
+                                <div
+                                  key={v.id}
+                                  className={`p-3 rounded-lg border ${color(
+                                    v.type
+                                  )}`}
+                                >
+                                  <div className="flex items-start space-x-2">
+                                    <Icon.component
+                                      className={`w-4 h-4 ${Icon.class}`}
+                                    />
+                                    <div className="flex-1">
+                                      <h4 className="font-medium">{v.title}</h4>
+                                      <p className="text-sm">{v.description}</p>
+                                      <p className="mt-2 text-xs">
+                                        <span className="font-medium">
+                                          Fix:
+                                        </span>{" "}
+                                        {v.recommendation}
+                                      </p>
+                                      {v.cweId && (
+                                        <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-xs rounded">
+                                          {v.cweId}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </pre>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>

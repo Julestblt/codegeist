@@ -35,10 +35,6 @@ async function request<T = JSONValue>(
   return (await res.json()) as T;
 }
 
-/**
- * Crée uniquement les métadonnées projet.
- * @return l’id UUID du projet.
- */
 export const createProject = async (
   name: string,
   url?: string | null
@@ -51,10 +47,6 @@ export const createProject = async (
   return project.id;
 };
 
-/**
- * Upload le zip et met à jour totalSize & totalFiles.
- * @returns void
- */
 export const uploadProjectZip = async (
   projectId: string,
   file: File
@@ -70,24 +62,40 @@ export const uploadProjectZip = async (
 export const getFileContent = async (
   projectId: string,
   filePath: string
-): Promise<string> => {
+): Promise<{ content: string; mimeType: string }> => {
   const res = await fetch(
     `${API_BASE}/projects/${projectId}/file?path=${encodeURIComponent(
       filePath
     )}`
   );
+
   if (!res.ok) {
     const msg = await res.text().catch(() => "Unknown error");
     throw new Error(`file ${res.status} – ${msg}`);
   }
-  return res.text();
+
+  const mime = res.headers.get("content-type") ?? "text/plain";
+
+  if (mime.startsWith("image/")) {
+    const blob = await res.blob();
+    const b64 = await new Promise<string>((ok) => {
+      const r = new FileReader();
+      r.onloadend = () => ok((r.result as string).split(",")[1]);
+      r.readAsDataURL(blob);
+    });
+    return { content: b64, mimeType: mime };
+  }
+
+  return { content: await res.text(), mimeType: mime };
 };
 
 export const listProjects = () =>
-  request<{ projects: Project[] }>("/projects").then((d) => d.projects);
+  request<{ projects: Project[]; length: number }>("/projects").then(
+    (d) => d.projects
+  );
 
 export const getProject = (id: string) =>
   request<{ project: Project }>(`/projects/${id}`).then((d) => d.project);
 
 export const deleteProject = (id: string) =>
-  request<void>(`/projects/${id}`, { method: "DELETE" });
+  request<{ status: boolean }>(`/projects/${id}`, { method: "DELETE" });

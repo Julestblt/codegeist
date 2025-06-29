@@ -10,6 +10,7 @@ import {
 import { prisma } from "../lib/prisma";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
+import mime from "mime-types";
 
 const createProjectMetaController = async (
   req: FastifyRequest<{ Body: { name: string; url?: string } }>,
@@ -58,7 +59,7 @@ const deleteProjectController = async (
   try {
     await deleteProject(projectId);
     await deleteProjectFolder(projectId);
-    return rep.status(204).send();
+    return rep.status(200).send({ success: true });
   } catch {
     return rep.status(500).send({ error: "delete failed" });
   }
@@ -79,7 +80,7 @@ const getProjectsController = async (
       updatedAt: true,
     },
   });
-  rep.send({ projects });
+  rep.send({ projects, length: projects.length });
 };
 
 const getProjectByIdController = async (
@@ -128,7 +129,9 @@ const getProjectFileController = async (
 
   try {
     const content = await readFile(absFile, "utf8");
-    return rep.type("text/plain").send(content);
+    const ext = path.extname(absFile).toLowerCase();
+    const mimeType = mime.lookup(ext) || "application/octet-stream";
+    return rep.type(mimeType).send(content);
   } catch {
     return rep.status(404).send({ error: "file not found" });
   }
