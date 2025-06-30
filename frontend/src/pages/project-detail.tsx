@@ -6,7 +6,7 @@ import CodeViewer from "@/components/code-viewer";
 import AnalysisPanel from "@/components/analysis-panel";
 import { getProject } from "@/services/api";
 import { findFileByPath } from "@/utils/file-processor";
-import type { Manifest, Project } from "@/services/api";
+import type { Manifest, Project, Scans } from "@/services/api";
 import type { FileNode, Vulnerability } from "@/types";
 
 const ProjectDetailPage: React.FC = () => {
@@ -18,8 +18,10 @@ const ProjectDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log(project);
+
   useEffect(() => {
-    document.title = "CodeGeist - Project Detail";
+    document.title = `CodeGeist - ${project?.name || ""}`;
 
     if (!projectId) return;
 
@@ -35,7 +37,7 @@ const ProjectDetailPage: React.FC = () => {
         setLoading(false);
       }
     })();
-  }, [projectId, navigate]);
+  }, [projectId, navigate, project?.name]);
 
   const handleFileSelect = (file: FileNode) => setSelectedFile(file);
 
@@ -63,7 +65,6 @@ const ProjectDetailPage: React.FC = () => {
         <div className="flex-1 border-r border-muted overflow-hidden flex flex-col">
           <CodeViewer
             file={selectedFile}
-            vulnerabilities={(project as any).analysis?.vulnerabilities ?? []}
             path={selectedFile?.id || null}
             projectId={project.id}
           />
@@ -73,6 +74,7 @@ const ProjectDetailPage: React.FC = () => {
           <AnalysisPanel
             analysis={(project as any).analysis ?? null}
             onVulnerabilitySelect={handleVulnSelect}
+            scans={project.scans as Scans[]}
           />
         </div>
       </div>

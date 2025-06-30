@@ -97,3 +97,41 @@ export const getScanResultsController = async (
     summary: scan.results as any,
   });
 };
+export const getDashboardAnalyticsController = async (
+  _req: FastifyRequest,
+  rep: FastifyReply
+) => {
+  const totalProjects = await prisma.project.count({
+    where: {
+      scans: {
+        some: {
+          status: "done",
+        },
+      },
+    },
+  });
+
+  const totalIssues = await prisma.issue.count();
+
+  const vulnerabilityCounts = await prisma.issue.groupBy({
+    by: ["severity"],
+    _count: {
+      id: true,
+    },
+  });
+
+  const analytics = {
+    totalProjectsAnalyzed: totalProjects,
+    totalIssues,
+    critical:
+      vulnerabilityCounts.find((v) => v.severity === "CRITICAL")?._count.id ||
+      0,
+    high:
+      vulnerabilityCounts.find((v) => v.severity === "HIGH")?._count.id || 0,
+    medium:
+      vulnerabilityCounts.find((v) => v.severity === "MEDIUM")?._count.id || 0,
+    low: vulnerabilityCounts.find((v) => v.severity === "LOW")?._count.id || 0,
+  };
+
+  return rep.send(analytics);
+};

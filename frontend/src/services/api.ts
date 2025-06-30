@@ -16,6 +16,29 @@ export interface Project {
   createdAt?: string;
   updatedAt?: string;
   manifest?: Manifest[];
+  scans?: Scans[];
+}
+
+export interface Vulnerability {
+  id: string;
+  scanId: string;
+  projectId: string;
+  filePath: string;
+  lines: number[];
+  type: string;
+  severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  recommendation: string;
+  cwe?: string | null;
+}
+
+export interface Scans {
+  id: string;
+  status: "queued" | "running" | "completed" | "failed";
+  progress: number;
+  startedAt?: string;
+  finishedAt?: string;
+  results?: Record<string, any>;
 }
 
 type JSONValue = unknown;
@@ -95,7 +118,29 @@ export const listProjects = () =>
   );
 
 export const getProject = (id: string) =>
-  request<{ project: Project }>(`/projects/${id}`).then((d) => d.project);
+  request<{ project: Project; scans: Scans[] }>(`/projects/${id}`).then(
+    (d) => d.project
+  );
 
 export const deleteProject = (id: string) =>
   request<{ status: boolean }>(`/projects/${id}`, { method: "DELETE" });
+
+export const getDashboardAnalytics = () =>
+  request<{
+    totalProjectsAnalyzed: number;
+    totalIssues: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  }>("/scans/dashboard/analytics");
+
+export const getVulnerabilitiesForFile = (
+  projectId: string,
+  filePath: string
+): Promise<Vulnerability[]> =>
+  request<Vulnerability[]>(
+    `/projects/${projectId}/file/vulnerabilities?filePath=${encodeURIComponent(
+      filePath
+    )}`
+  );

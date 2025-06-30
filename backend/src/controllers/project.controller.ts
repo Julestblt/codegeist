@@ -101,7 +101,28 @@ const getProjectByIdController = async (
     },
   });
   if (!project) return rep.status(404).send({ error: "not found" });
-  rep.send({ project });
+
+  const projectActiveScan = await prisma.scan.findFirst({
+    where: { projectId: project.id, status: "running" },
+    select: { id: true, status: true, progress: true },
+  });
+
+  const projectScans = await prisma.scan.findMany({
+    where: { projectId: project.id },
+    orderBy: { startedAt: "desc" },
+    select: {
+      id: true,
+      status: true,
+      progress: true,
+      startedAt: true,
+      finishedAt: true,
+      results: true,
+    },
+  });
+
+  rep.send({
+    project: { ...project, activeScan: projectActiveScan, scans: projectScans },
+  });
 };
 
 const getProjectFileController = async (
@@ -137,11 +158,50 @@ const getProjectFileController = async (
   }
 };
 
+const getVulnerabilitiesForFileController = async (
+  req: FastifyRequest<{
+    Params: { projectId: string };
+    Querystring: { filePath: string };
+  }>,
+  rep: FastifyReply
+) => {
+  const { projectId } = req.params;
+  const filePath = req.query.filePath;
+
+  const vulnerabilities = await prisma.issue.findMany({
+    where: {
+      projectId,
+      filePath,
+    },
+    select: {
+      id: true,
+      scanId: true,
+      projectId: true,
+      severity: true,
+      description: true,
+      recommendation: true,
+      filePath: true,
+      lines: true,
+      type: true,
+      cwe: true,
+    },
+  });
+
+  if (!vulnerabilities || vulnerabilities.length === 0) {
+    return rep
+      .status(404)
+      .send({ error: "No vulnerabilities found for this file" });
+  }
+
+  return rep.send(vulnerabilities);
+};
+
 export {
   createProjectMetaController,
   uploadArchiveController,
   deleteProjectController,
   getProjectsController,
+  getVulnerabilitiesForFileController,
   getProjectByIdController,
   getProjectFileController,
 };

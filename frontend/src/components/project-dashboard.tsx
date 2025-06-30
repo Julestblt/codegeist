@@ -8,7 +8,7 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
-import type { Project } from "@/services/api";
+import { getDashboardAnalytics, type Project } from "@/services/api";
 import { StatsCard, ProjectCard } from "./dashboard/";
 import { Badge } from "./ui/badge";
 
@@ -22,6 +22,30 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   onProjectSelect,
 }) => {
   const totalProjects = projects.length;
+
+  const [analytics, setAnalytics] = React.useState({
+    totalProjectsAnalyzed: 0,
+    totalIssues: 0,
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+  });
+
+  React.useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const data = await getDashboardAnalytics();
+        setAnalytics(data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard analytics:", error);
+      }
+    };
+
+    fetchAnalytics();
+  }, [projects]);
+
+  const { totalIssues, totalProjectsAnalyzed, critical } = analytics;
 
   if (projects.length === 0) {
     return (
@@ -82,19 +106,19 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
             />
             <StatsCard
               title="Analyzed"
-              // value={completedProjects}
+              value={totalProjectsAnalyzed}
               icon={CheckCircle}
               iconColor="text-emerald-600"
             />
             <StatsCard
               title="Total Issues"
-              // value={totalVulnerabilities}
+              value={totalIssues}
               icon={AlertTriangle}
               iconColor="text-yellow-600"
             />
             <StatsCard
               title="Critical"
-              // value={criticalVulnerabilities}
+              value={critical}
               icon={Shield}
               iconColor="text-red-600"
             />

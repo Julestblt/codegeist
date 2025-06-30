@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AlertCircle,
   AlertTriangle,
@@ -10,18 +10,25 @@ import {
   Download,
 } from "lucide-react";
 import type { AnalysisResult, Vulnerability } from "@/types";
+import type { Scans } from "@/services/api";
 
 interface AnalysisPanelProps {
   analysis: AnalysisResult | null;
   onVulnerabilitySelect: (vulnerability: Vulnerability) => void;
+  scans: Scans[];
 }
 
 const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   analysis,
   onVulnerabilitySelect,
+  scans,
 }) => {
   const [selectedSeverity, setSelectedSeverity] = useState("all");
   const [expandedVuln, setExpandedVuln] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log(scans);
+  });
 
   const filteredVulnerabilities =
     selectedSeverity === "all"
@@ -66,9 +73,9 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
   if (!analysis) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-500">
+      <div className="h-full flex items-center justify-center text-foreground">
         <div className="text-center">
-          <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <Clock className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-lg font-medium">No analysis available</p>
           <p className="text-sm">
             Upload and analyze a project to see security results
@@ -82,7 +89,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-muted-foreground">
             Security Analysis
           </h3>
           <button className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
@@ -94,10 +101,10 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-muted-foreground">
                 Total Issues
               </span>
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-muted-foreground">
                 {analysis.summary.total}
               </span>
             </div>

@@ -198,6 +198,8 @@ export const scanWorker = new Worker<ScanJob>(
                 severity: issue.severity.toUpperCase(),
                 description: issue.description,
                 recommendation: issue.recommendation,
+                cwe: issue.cwe || null,
+                owasp: issue.owasp || null,
               })),
               skipDuplicates: true,
             });

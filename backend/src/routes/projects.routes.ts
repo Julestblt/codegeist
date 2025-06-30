@@ -6,6 +6,7 @@ import {
   getProjectsController,
   getProjectByIdController,
   getProjectFileController,
+  getVulnerabilitiesForFileController,
 } from "../controllers/project.controller";
 
 export const projectRoutes = async (app: FastifyInstance) => {
@@ -16,4 +17,8 @@ export const projectRoutes = async (app: FastifyInstance) => {
   app.get("/:projectId", getProjectByIdController);
   app.delete("/:projectId", deleteProjectController);
   app.get("/:projectId/file", getProjectFileController);
+  app.get(
+    "/:projectId/file/vulnerabilities",
+    getVulnerabilitiesForFileController
+  );
 };
