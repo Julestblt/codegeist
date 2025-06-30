@@ -112,12 +112,33 @@ const getProjectByIdController = async (
     orderBy: { startedAt: "desc" },
     select: {
       id: true,
+      projectId: true,
       status: true,
       progress: true,
       startedAt: true,
       finishedAt: true,
       results: true,
     },
+  });
+  const issues = await prisma.issue.findMany({
+    where: { projectId: project.id },
+    select: {
+      id: true,
+      scanId: true,
+      projectId: true,
+      severity: true,
+      description: true,
+      recommendation: true,
+      filePath: true,
+      lines: true,
+      type: true,
+      cwe: true,
+    },
+  });
+
+  projectScans.forEach((scan) => {
+    const scanIssues = issues.filter((issue) => issue.scanId === scan.id);
+    (scan as any).issues = scanIssues;
   });
 
   rep.send({

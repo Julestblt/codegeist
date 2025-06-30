@@ -19,6 +19,19 @@ export interface Project {
   scans?: Scans[];
 }
 
+export interface Issue {
+  id: string;
+  scanId: string;
+  projectId: string;
+  severity: string;
+  description: string;
+  recommendation: string;
+  filePath: string;
+  lines: number[];
+  type: string;
+  cwe: string | null;
+}
+
 export interface Vulnerability {
   id: string;
   scanId: string;
@@ -39,6 +52,7 @@ export interface Scans {
   startedAt?: string;
   finishedAt?: string;
   results?: Record<string, any>;
+  issues?: Issue[];
 }
 
 type JSONValue = unknown;

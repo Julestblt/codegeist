@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { AlertTriangle, Info, AlertCircle, XCircle } from "lucide-react";
 import {
   getFileContent,
@@ -11,13 +11,20 @@ interface CodeViewerProps {
   file: FileNode | null;
   path: string | null;
   projectId?: string | null;
+  highlightLine?: number | null;
 }
 
-const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
+const CodeViewer: React.FC<CodeViewerProps> = ({
+  file,
+  path,
+  projectId,
+  highlightLine,
+}) => {
   const [code, setCode] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [mimeType, setMimeType] = useState<string>("text/plain");
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const codeContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setVulnerabilities([]);
@@ -48,6 +55,25 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
       cancel = true;
     };
   }, [projectId, path]);
+
+  // Effect pour scroll automatique vers la ligne surlignée
+  useEffect(() => {
+    if (highlightLine && codeContainerRef.current) {
+      const timer = setTimeout(() => {
+        const lineElement = codeContainerRef.current?.querySelector(
+          `[data-line-number="${highlightLine}"]`
+        );
+        if (lineElement) {
+          lineElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 100); // Petit délai pour s'assurer que le contenu est rendu
+
+      return () => clearTimeout(timer);
+    }
+  }, [highlightLine, code]);
 
   const icon = (sev: string) => {
     const map = {
@@ -106,7 +132,10 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
                 {vulnerabilities.length} issue
                 {vulnerabilities.length !== 1 ? "s" : ""} found
               </span>
-              <div className="w-2 h-2 bg-red-500 rounded-full" />
+              <span className="relative flex size-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex size-3 rounded-full bg-red-500"></span>
+              </span>
             </div>
           )}
         </div>
@@ -116,7 +145,7 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
         {loading ? (
           <p className="p-4 text-sm text-muted-foreground">Loading…</p>
         ) : (
-          <div className="h-full overflow-y-auto">
+          <div className="h-full overflow-y-auto" ref={codeContainerRef}>
             <div className="h-full overflow-y-auto overflow-x-hidden">
               <div className="text-sm">
                 {lines.map((line, idx) => {
@@ -132,18 +161,20 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
                     return false;
                   });
                   const has = lineVulns.length > 0;
+                  const isHighlighted = highlightLine === lineNo;
 
-                  // Only show vulnerabilities after their last line
                   const vulnsToShow = vulnerabilities.filter(
                     (v) => Math.max(...v.lines) === lineNo
                   );
 
                   return (
-                    <div key={idx} className="flex">
+                    <div key={idx} className="flex" data-line-number={lineNo}>
                       <div
                         className={`w-12 px-2 py-1 text-right text-xs select-none border-r
                       ${
-                        has
+                        isHighlighted
+                          ? "bg-primary/30"
+                          : has
                           ? "bg-red-50 dark:bg-red-900/20"
                           : "bg-muted text-muted-foreground"
                       }`}
@@ -153,7 +184,11 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
 
                       <div
                         className={`flex-1 px-4 py-1 font-mono break-words whitespace-pre-wrap ${
-                          has ? "bg-red-50 dark:bg-red-900/20" : ""
+                          isHighlighted
+                            ? "bg-primary/10"
+                            : has
+                            ? "bg-red-50 dark:bg-red-900/20"
+                            : ""
                         }`}
                       >
                         <code>{line || " "}</code>
@@ -187,6 +222,12 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ file, path, projectId }) => {
                                           {v.cwe}
                                         </span>
                                       )}
+                                      <div className="mt-2 text-xs text-muted-foreground">
+                                        <span className="font-medium">
+                                          Lines:
+                                        </span>{" "}
+                                        {v.lines.join(", ")}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>

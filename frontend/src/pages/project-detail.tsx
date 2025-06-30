@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProjectHeader from "@/components/layout/project-header";
 import FileExplorer from "@/components/file-explorer";
 import CodeViewer from "@/components/code-viewer";
 import AnalysisPanel from "@/components/analysis-panel";
 import { getProject } from "@/services/api";
-import { findFileByPath } from "@/utils/file-processor";
+
 import type { Manifest, Project, Scans } from "@/services/api";
 import type { FileNode, Vulnerability } from "@/types";
 
@@ -15,10 +15,10 @@ const ProjectDetailPage: React.FC = () => {
 
   const [project, setProject] = useState<Project | null>(null);
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
+  const [highlightLine, setHighlightLine] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  console.log(project);
+  const highlightTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     document.title = `CodeGeist - ${project?.name || ""}`;
@@ -37,14 +37,53 @@ const ProjectDetailPage: React.FC = () => {
         setLoading(false);
       }
     })();
+
+    return () => {
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+        highlightTimerRef.current = null;
+      }
+    };
   }, [projectId, navigate, project?.name]);
 
-  const handleFileSelect = (file: FileNode) => setSelectedFile(file);
+  const handleFileSelect = (file: FileNode) => {
+    setSelectedFile(file);
+    setHighlightLine(null);
+
+    if (highlightTimerRef.current) {
+      clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+  };
 
   const handleVulnSelect = (v: Vulnerability) => {
-    if (!project) return;
-    const file = findFileByPath(project.manifest as Manifest[], v.file);
-    if (file) setSelectedFile(file);
+    if (!project || !project.manifest) return;
+
+    if (highlightTimerRef.current) {
+      clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+
+    const manifestFile = project.manifest.find((f) => f.path === v.file);
+
+    if (manifestFile) {
+      const fileNode: FileNode = {
+        id: manifestFile.path,
+        name: manifestFile.path.split("/").pop() || manifestFile.path,
+        type: "file",
+        path: manifestFile.path,
+        size: manifestFile.size,
+        extension: manifestFile.path.split(".").pop(),
+      };
+
+      setSelectedFile(fileNode);
+      setHighlightLine(v.line);
+
+      highlightTimerRef.current = setTimeout(() => {
+        setHighlightLine(null);
+        highlightTimerRef.current = null;
+      }, 1500);
+    }
   };
 
   if (loading) return <p className="p-8">Loading…</p>;
@@ -67,12 +106,12 @@ const ProjectDetailPage: React.FC = () => {
             file={selectedFile}
             path={selectedFile?.id || null}
             projectId={project.id}
+            highlightLine={highlightLine}
           />
         </div>
 
         <div className="w-96 flex-shrink-0 overflow-hidden flex flex-col">
           <AnalysisPanel
-            analysis={(project as any).analysis ?? null}
             onVulnerabilitySelect={handleVulnSelect}
             scans={project.scans as Scans[]}
           />

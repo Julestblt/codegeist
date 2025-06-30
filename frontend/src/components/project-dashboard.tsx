@@ -99,24 +99,28 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <StatsCard
+              size="lg"
               title="Total Projects"
               value={totalProjects}
               icon={FolderOpen}
               iconColor="text-blue-600"
             />
             <StatsCard
+              size="lg"
               title="Analyzed"
               value={totalProjectsAnalyzed}
               icon={CheckCircle}
               iconColor="text-emerald-600"
             />
             <StatsCard
+              size="lg"
               title="Total Issues"
               value={totalIssues}
               icon={AlertTriangle}
               iconColor="text-yellow-600"
             />
             <StatsCard
+              size="lg"
               title="Critical"
               value={critical}
               icon={Shield}
