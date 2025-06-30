@@ -18,18 +18,36 @@ model Project {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   issues     Issue[]
+  scans      Scan[]
 }
 
 model Issue {
   id             String  @id @default(uuid())
+  scanId         String
   projectId      String
   filePath       String
-  line           Int?
+  lines          Int[]
   type           String
   severity       String
   description    String
   recommendation String
-  Project        Project @relation(fields: [projectId], references: [id])
+  project        Project @relation(fields: [projectId], references: [id])
+  scan           Scan    @relation(fields: [scanId], references: [id])
+
+  @@index([projectId])
+}
+
+model Scan {
+  id         String    @id @default(uuid())
+  projectId  String
+  status     String
+  progress   Int       @default(0)
+  startedAt  DateTime? @default(now())
+  finishedAt DateTime?
+  results    Json      @default("{}")
+
+  project Project @relation(fields: [projectId], references: [id])
+  Issue   Issue[]
 
   @@index([projectId])
 }

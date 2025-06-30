@@ -9,7 +9,7 @@ const prisma =
     log: ["query", "error"],
   });
 
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
