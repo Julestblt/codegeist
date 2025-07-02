@@ -158,3 +158,16 @@ export const getVulnerabilitiesForFile = (
       filePath
     )}`
   );
+
+export const startScan = (
+  projectId: string
+): Promise<{
+  scan: {
+    id: string;
+    status: "queued" | "running" | "completed" | "failed";
+    progress: number;
+  };
+}> =>
+  request(`/scans/${projectId}/scan`, {
+    method: "POST",
+  });

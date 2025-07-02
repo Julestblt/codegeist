@@ -65,7 +65,6 @@ STRICT RESPONSE FORMAT
       "cwe":           "<CWE-ID or null>",
       "owasp":         "<OWASP-Top-10 entry or null>",
       "lines":         [ <lineNr>, … ],
-      "snippet":       "<<=120 chars of code>>",
       "description":   "<concise explanation (≤ 250 chars)>",
       "recommendation":"<clear, actionable fix>"
     }
