@@ -199,7 +199,6 @@ export const scanWorker = new Worker<ScanJob>(
                 description: issue.description,
                 recommendation: issue.recommendation,
                 cwe: issue.cwe || null,
-                owasp: issue.owasp || null,
               })),
               skipDuplicates: true,
             });
