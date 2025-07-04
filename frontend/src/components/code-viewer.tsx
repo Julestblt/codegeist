@@ -12,6 +12,7 @@ interface CodeViewerProps {
   path: string | null;
   projectId?: string | null;
   highlightLine?: number | null;
+  selectedScanId?: string | null;
 }
 
 const CodeViewer: React.FC<CodeViewerProps> = ({
@@ -19,6 +20,7 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
   path,
   projectId,
   highlightLine,
+  selectedScanId,
 }) => {
   const [code, setCode] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +47,13 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
       }
 
       if (file?.id) {
-        setVulnerabilities(await getVulnerabilitiesForFile(projectId, file.id));
+        setVulnerabilities(
+          await getVulnerabilitiesForFile(
+            projectId,
+            file.id,
+            selectedScanId || undefined
+          )
+        );
       }
     };
 
@@ -54,7 +62,7 @@ const CodeViewer: React.FC<CodeViewerProps> = ({
     return () => {
       cancel = true;
     };
-  }, [projectId, path]);
+  }, [projectId, path, selectedScanId]);
 
   // Effect pour scroll automatique vers la ligne surlignée
   useEffect(() => {

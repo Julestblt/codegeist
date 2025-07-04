@@ -182,18 +182,25 @@ const getProjectFileController = async (
 const getVulnerabilitiesForFileController = async (
   req: FastifyRequest<{
     Params: { projectId: string };
-    Querystring: { filePath: string };
+    Querystring: { filePath: string; scanId?: string };
   }>,
   rep: FastifyReply
 ) => {
   const { projectId } = req.params;
-  const filePath = req.query.filePath;
+  const { filePath, scanId } = req.query;
+
+  const whereClause: any = {
+    projectId,
+    filePath,
+  };
+
+  // If scanId is provided, filter by that specific scan
+  if (scanId) {
+    whereClause.scanId = scanId;
+  }
 
   const vulnerabilities = await prisma.issue.findMany({
-    where: {
-      projectId,
-      filePath,
-    },
+    where: whereClause,
     select: {
       id: true,
       scanId: true,

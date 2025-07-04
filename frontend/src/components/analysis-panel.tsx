@@ -7,6 +7,7 @@ import {
   XCircle,
   AlertCircle,
   AlertTriangle,
+  SearchCode,
 } from "lucide-react";
 import type { Vulnerability } from "@/types";
 import type { Scans } from "@/services/api";
@@ -21,11 +22,13 @@ import {
 
 interface AnalysisPanelProps {
   onVulnerabilitySelect: (vulnerability: Vulnerability) => void;
+  onScanChange?: (scanId: string | null) => void;
   scans: Scans[];
 }
 
 const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   onVulnerabilitySelect,
+  onScanChange,
   scans,
 }) => {
   const [selectedSeverity, setSelectedSeverity] = useState("all");
@@ -34,14 +37,30 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
   useEffect(() => {
     console.log("Scans received:", scans);
-    setSelectedScan(scans[0] || null);
-    console.log("Selected scan:", scans[0]);
-  }, [scans]);
+
+    const latestCompletedScan = scans
+      .filter((scan) => scan.status === "completed" && scan.finishedAt)
+      .sort((a, b) => {
+        const dateA = new Date(a.finishedAt!);
+        const dateB = new Date(b.finishedAt!);
+        return dateB.getTime() - dateA.getTime();
+      })[0];
+
+    setSelectedScan(latestCompletedScan || scans[0] || null);
+    console.log("Selected scan:", latestCompletedScan || scans[0]);
+
+    // Notify parent of the selected scan
+    if (onScanChange) {
+      onScanChange(latestCompletedScan?.id || scans[0]?.id || null);
+    }
+  }, [scans, onScanChange]);
 
   const handleVulnerabilityClick = (vuln: Vulnerability) => {
     onVulnerabilitySelect(vuln);
     setExpandedVuln(expandedVuln === vuln.id ? null : vuln.id);
   };
+
+  console.log(scans);
 
   if (scans.length === 0) {
     return (
@@ -115,10 +134,10 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           ))}
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center space-x-2 mb-2">
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger>
               <SelectValue placeholder="Select severity" />
             </SelectTrigger>
             <SelectContent>
@@ -134,6 +153,54 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               <SelectItem value="high">High</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="low">Low</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <SearchCode className="w-4 h-4 text-muted-foreground" />
+          <Select
+            value={selectedScan?.id || ""}
+            onValueChange={(scanId) => {
+              const scan = scans.find((s) => s.id === scanId);
+              setSelectedScan(scan || null);
+
+              // Notify parent of the selected scan
+              if (onScanChange) {
+                onScanChange(scanId);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select scan" />
+            </SelectTrigger>
+            <SelectContent>
+              {scans.map((scan) => (
+                <SelectItem key={scan.id} value={scan.id}>
+                  <div className="flex items-center space-x-2">
+                    <span>
+                      {scan.status === "completed"
+                        ? "✅"
+                        : scan.status === "running"
+                        ? "🔄"
+                        : scan.status === "failed"
+                        ? "❌"
+                        : "⏳"}
+                    </span>
+                    <span>
+                      {scan.finishedAt
+                        ? new Date(scan.finishedAt).toLocaleDateString() +
+                          " " +
+                          new Date(scan.finishedAt).toLocaleTimeString()
+                        : scan.startedAt
+                        ? new Date(scan.startedAt).toLocaleDateString() +
+                          " " +
+                          new Date(scan.startedAt).toLocaleTimeString()
+                        : "Unknown"}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

@@ -151,13 +151,21 @@ export const getDashboardAnalytics = () =>
 
 export const getVulnerabilitiesForFile = (
   projectId: string,
-  filePath: string
-): Promise<Vulnerability[]> =>
-  request<Vulnerability[]>(
-    `/projects/${projectId}/file/vulnerabilities?filePath=${encodeURIComponent(
-      filePath
-    )}`
+  filePath: string,
+  scanId?: string
+): Promise<Vulnerability[]> => {
+  const params = new URLSearchParams({
+    filePath: filePath,
+  });
+
+  if (scanId) {
+    params.append("scanId", scanId);
+  }
+
+  return request<Vulnerability[]>(
+    `/projects/${projectId}/file/vulnerabilities?${params.toString()}`
   );
+};
 
 export const startScan = (
   projectId: string

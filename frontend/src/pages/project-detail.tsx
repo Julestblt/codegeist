@@ -16,6 +16,7 @@ const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [highlightLine, setHighlightLine] = useState<number | null>(null);
+  const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const highlightTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -107,12 +108,14 @@ const ProjectDetailPage: React.FC = () => {
             path={selectedFile?.id || null}
             projectId={project.id}
             highlightLine={highlightLine}
+            selectedScanId={selectedScanId}
           />
         </div>
 
         <div className="w-96 flex-shrink-0 overflow-hidden flex flex-col">
           <AnalysisPanel
             onVulnerabilitySelect={handleVulnSelect}
+            onScanChange={setSelectedScanId}
             scans={project.scans as Scans[]}
           />
         </div>
