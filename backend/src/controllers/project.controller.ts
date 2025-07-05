@@ -216,9 +216,7 @@ const getVulnerabilitiesForFileController = async (
   });
 
   if (!vulnerabilities || vulnerabilities.length === 0) {
-    return rep
-      .status(404)
-      .send({ error: "No vulnerabilities found for this file" });
+    return rep.status(200).send([]);
   }
 
   return rep.send(vulnerabilities);

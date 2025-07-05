@@ -12,7 +12,7 @@
 		},
 		projects: {
 			label: 'Create Project',
-			path: '/project/create'
+			path: '/project/new'
 		}
 	};
 </script>

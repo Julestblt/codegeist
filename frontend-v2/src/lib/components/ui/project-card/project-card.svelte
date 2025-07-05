@@ -33,10 +33,7 @@
 	};
 </script>
 
-<a
-	href={isLoading ? '#' : `/projects/${project.id}`}
-	class={isLoading ? 'pointer-events-none' : ''}
->
+<a href={isLoading ? '#' : `/project/${project.id}`} class={isLoading ? 'pointer-events-none' : ''}>
 	<Card.Root class="hover:border-primary group cursor-pointer shadow-sm hover:shadow-lg">
 		<Card.Content class="p-6">
 			<div class="mb-4 flex items-start justify-between">

@@ -126,11 +126,6 @@ export const getDashboardAnalyticsController = async (
     critical:
       vulnerabilityCounts.find((v) => v.severity === "CRITICAL")?._count.id ||
       0,
-    high:
-      vulnerabilityCounts.find((v) => v.severity === "HIGH")?._count.id || 0,
-    medium:
-      vulnerabilityCounts.find((v) => v.severity === "MEDIUM")?._count.id || 0,
-    low: vulnerabilityCounts.find((v) => v.severity === "LOW")?._count.id || 0,
   };
 
   return rep.send(analytics);

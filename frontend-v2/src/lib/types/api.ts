@@ -4,6 +4,15 @@ export interface Manifest {
 	isDir: boolean;
 }
 
+export interface FileNode {
+	id: string;
+	name: string;
+	type: 'file' | 'folder';
+	size: number;
+	extension?: string;
+	children?: FileNode[];
+}
+
 export interface Project {
 	id: string;
 	name: string;
