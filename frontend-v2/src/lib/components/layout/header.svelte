@@ -3,7 +3,7 @@
 	import { Button } from '../ui/button/';
 	import { toggleMode, mode } from 'mode-watcher';
 	import { page } from '$app/state';
-	import type { NavigationItems } from '@/lib/types/navigation';
+	import type { NavigationItems } from '$lib/types/navigation';
 
 	const navigationItems: NavigationItems = {
 		dashboard: {
