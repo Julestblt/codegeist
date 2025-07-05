@@ -7,7 +7,7 @@
 	export let value: string | number = '';
 	export let Icon: ComponentType | null = null;
 	export let iconColor: string = '';
-	export let titleColor: string = '';
+	export let titleColor: string = 'text-gray-600 dark:text-gray-400';
 	export let size: 'sm' | 'md' | 'lg' = 'md';
 	export let isLoading: boolean = false;
 
