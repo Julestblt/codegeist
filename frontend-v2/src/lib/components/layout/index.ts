@@ -5,3 +5,4 @@ export { default as DashboardAnalytics } from './dashboard-analytics.svelte';
 export { default as ProjectHeader } from './project-header.svelte';
 export { default as FileExplorer } from './file-explorer.svelte';
 export { default as CodeViewer } from './code-viewer.svelte';
+export { default as AnalysisPanel } from './analysis-panel.svelte';

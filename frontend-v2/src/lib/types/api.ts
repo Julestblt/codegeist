@@ -46,7 +46,7 @@ export interface Vulnerability {
 	filePath: string;
 	lines: number[];
 	type: string;
-	severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+	severity: Severity;
 	description: string;
 	recommendation: string;
 	cwe?: string | null;
@@ -67,3 +67,5 @@ export interface DashboardAnalytics {
 	totalIssues: number;
 	critical: number;
 }
+
+export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';

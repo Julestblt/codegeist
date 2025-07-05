@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { getFileContent, getProjectById } from '$lib/services/api';
-	import type { FileNode, Manifest, Project, Scans } from '$lib/types/api';
-	import { CodeViewer, FileExplorer, ProjectHeader } from '$lib/components/layout';
+	import type { FileNode, Manifest, Project, Scans, Vulnerability } from '$lib/types/api';
+	import { AnalysisPanel, CodeViewer, FileExplorer, ProjectHeader } from '$lib/components/layout';
 	import { createSkeletonProject } from '$lib/utils/skeleton.utils';
 	import { onMount } from 'svelte';
 
@@ -15,6 +15,7 @@
 	let selectedFileId: string | undefined = undefined;
 	let selectedFilePath: string | null = null;
 	let selectedScan: Scans | null = null;
+	let highlightLine: number | null = null;
 
 	const mockProject = createSkeletonProject(projectId);
 
@@ -36,6 +37,7 @@
 		selectedFile = file;
 		selectedFileId = file.id;
 		selectedFilePath = file.name;
+		highlightLine = null;
 
 		try {
 			const result = await getFileContent(project.id, file.id);
@@ -43,6 +45,51 @@
 		} catch (error) {
 			console.error('Erreur lors du chargement du fichier:', error);
 			fileContent = '';
+		}
+	};
+
+	const onVulnerabilitySelect = async (vulnerability: Vulnerability) => {
+		if (!project) return;
+
+		const targetFile = project.manifest?.find(
+			(manifest) => manifest.path === vulnerability.filePath
+		);
+
+		if (targetFile) {
+			const targetLine = vulnerability.lines[0] || null;
+
+			// Check if we're selecting the same file - if so, just update the highlight line
+			if (selectedFileId === vulnerability.filePath) {
+				highlightLine = targetLine;
+				return;
+			}
+
+			// Different file selected - need to fetch content
+			const mockFileNode: FileNode = {
+				id: vulnerability.filePath,
+				name: vulnerability.filePath.split('/').pop() || vulnerability.filePath,
+				type: 'file',
+				size: 0
+			};
+
+			selectedFile = mockFileNode;
+			selectedFileId = vulnerability.filePath;
+			selectedFilePath = vulnerability.filePath;
+			highlightLine = targetLine;
+
+			try {
+				const result = await getFileContent(project.id, vulnerability.filePath);
+				fileContent = result.content || '';
+			} catch (error) {
+				console.error('Erreur lors du chargement du fichier:', error);
+				fileContent = '';
+			}
+		}
+	};
+
+	const onScanChange = (scanId: string | null) => {
+		if (scanId && project) {
+			selectedScan = project.scans?.find((scan) => scan.id === scanId) || null;
 		}
 	};
 </script>
@@ -65,6 +112,15 @@
 				projectId={project?.id}
 				{fileContent}
 				{selectedScan}
+				{highlightLine}
+			/>
+		</div>
+		<div class="flex w-96 flex-shrink-0 flex-col overflow-hidden">
+			<AnalysisPanel
+				scans={project?.scans || []}
+				{onVulnerabilitySelect}
+				{onScanChange}
+				projectId={project?.id || null}
 			/>
 		</div>
 	</div>

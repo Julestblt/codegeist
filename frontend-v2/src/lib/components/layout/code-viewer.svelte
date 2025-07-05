@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { afterUpdate } from 'svelte';
-	import { Info } from 'lucide-svelte';
+	import { afterUpdate, onDestroy } from 'svelte';
+	import { ExternalLink, Info } from 'lucide-svelte';
 	import type { FileNode, Scans, Vulnerability } from '$lib/types/api';
 	import { getVulnerabilitiesForFile } from '@/lib/services/api';
 	import { getSeverityIcon, getSeverityColor } from '$lib/utils/style.utils';
+	import { Badge } from '../ui/badge';
+	import Button from '../ui/button/button.svelte';
 
 	export let file: FileNode | null = null;
 	export const path: string | null = null;
@@ -15,6 +17,7 @@
 	let loading = false;
 	let vulnerabilities: Vulnerability[] = [];
 	let codeContainerRef: HTMLDivElement;
+	let highlightTimeout: number | null = null;
 
 	$: lines = fileContent.split('\n');
 
@@ -61,6 +64,15 @@
 	afterUpdate(() => {
 		if (highlightLine && fileContent) {
 			setTimeout(scrollToHighlightedLine, 100);
+
+			if (highlightTimeout) {
+				clearTimeout(highlightTimeout);
+			}
+
+			highlightTimeout = setTimeout(() => {
+				highlightLine = null;
+				highlightTimeout = null;
+			}, 2000);
 		}
 	});
 
@@ -80,17 +92,6 @@
 			);
 
 			vulnerabilities = fileVulnerabilities || [];
-			console.log('Vulnérabilités chargées:', vulnerabilities);
-			console.log('Nombre total de vulnérabilités:', vulnerabilities.length);
-
-			vulnerabilities.forEach((vuln, index) => {
-				console.log(`Vulnérabilité ${index + 1}:`, {
-					id: vuln.id,
-					lines: vuln.lines,
-					type: vuln.type,
-					severity: vuln.severity
-				});
-			});
 		} catch (error) {
 			console.error('Erreur lors du chargement des vulnérabilités:', error);
 			vulnerabilities = [];
@@ -98,6 +99,12 @@
 			loading = false;
 		}
 	};
+
+	onDestroy(() => {
+		if (highlightTimeout) {
+			clearTimeout(highlightTimeout);
+		}
+	});
 </script>
 
 {#if !file}
@@ -182,30 +189,39 @@
 													{@const iconInfo = getSeverityIcon(vuln.severity)}
 													{@const colorClass = getSeverityColor(vuln.severity)}
 													<div class="rounded-lg border p-3 {colorClass}">
-														<div class="flex items-start space-x-2">
-															<svelte:component
-																this={iconInfo.component}
-																class="h-4 w-4 {iconInfo.class}"
-															/>
-															<div class="flex-1">
+														<div class="flex items-center justify-between">
+															<span class="flex items-center space-x-2">
+																<svelte:component
+																	this={iconInfo.component}
+																	class="h-4 w-4 {iconInfo.class}"
+																/>
 																<h4 class="font-medium">{vuln.type}</h4>
-																<p class="text-sm">{vuln.description}</p>
-																<p class="mt-2 text-xs">
-																	<span class="font-medium">Fix:</span>
-																	{vuln.recommendation}
-																</p>
-																{#if vuln.cwe && vuln.cwe !== 'null'}
-																	<span
-																		class="mt-2 inline-block rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
-																	>
-																		{vuln.cwe}
-																	</span>
-																{/if}
-																<div class="text-muted-foreground mt-2 text-xs">
-																	<span class="font-medium">Lines:</span>
-																	{vuln.lines.join(', ')}
-																</div>
-															</div>
+															</span>
+															<Badge variant="outline" class="font-bold">
+																<span class="text-xs">{vuln.severity}</span>
+															</Badge>
+														</div>
+
+														<p class="text-sm">{vuln.description}</p>
+														<p class="text-xs">
+															<span class="font-medium">Fix:</span>
+															{vuln.recommendation}
+														</p>
+														{#if vuln.cwe && vuln.cwe !== 'null'}
+															<Button
+																size="sm"
+																href={`https://cwe.mitre.org/data/definitions/${vuln.cwe.split('-')[1]}.html`}
+																target="_blank"
+																class="mt-2"
+																variant="outline"
+															>
+																{vuln.cwe}
+																<ExternalLink />
+															</Button>
+														{/if}
+														<div class="text-muted-foreground mt-2 text-xs">
+															<span class="font-medium">Lines:</span>
+															{vuln.lines.join(', ')}
 														</div>
 													</div>
 												{/each}
