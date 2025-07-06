@@ -112,6 +112,16 @@ const getScanStatus = (scanId: string): Promise<Scans> => {
 	});
 };
 
+const getScanResults = (scanId: string) => {
+	return apiRequest<{
+		scan: Scans;
+		issues: any[];
+		summary: any;
+	}>(`/scans/${scanId}/results`, {
+		method: 'GET'
+	});
+};
+
 export {
 	getProjects,
 	getProjectById,
@@ -122,5 +132,6 @@ export {
 	createProject,
 	uploadProjectZip,
 	startScan,
-	getScanStatus
+	getScanStatus,
+	getScanResults
 };
