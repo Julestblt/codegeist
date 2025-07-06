@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { Header } from './';
+	import Footer from './footer.svelte';
 
 	let { children } = $props();
 
@@ -15,8 +16,9 @@
 {:else}
 	<div class="flex min-h-screen flex-col overflow-y-auto">
 		<Header />
-		<div class="flex flex-1 flex-col overflow-hidden">
+		<div class="flex min-h-screen flex-1 flex-col overflow-hidden">
 			{@render children()}
 		</div>
+		<Footer />
 	</div>
 {/if}
