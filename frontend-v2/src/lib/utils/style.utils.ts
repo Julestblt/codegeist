@@ -20,15 +20,15 @@ const getSeverityColor = (severity: string) => {
 	const sev = severity.toLowerCase();
 	switch (sev) {
 		case 'critical':
-			return 'bg-red-50 dark:bg-red-900/20';
+			return 'bg-red-100/50 dark:bg-red-900/20';
 		case 'high':
-			return 'bg-orange-50 dark:bg-orange-900/20';
+			return 'bg-orange-100/50 dark:bg-orange-900/20';
 		case 'medium':
-			return 'bg-yellow-50 dark:bg-yellow-900/20';
+			return 'bg-yellow-100/50 dark:bg-yellow-900/20';
 		case 'low':
-			return 'bg-blue-50 dark:bg-blue-900/20';
+			return 'bg-blue-100/50 dark:bg-blue-900/20';
 		default:
-			return 'bg-gray-50 border-gray-200';
+			return 'bg-gray-100/50 border-gray-200';
 	}
 };
 

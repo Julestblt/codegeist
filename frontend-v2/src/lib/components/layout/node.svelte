@@ -22,7 +22,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class={`flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-left transition-colors ${
-			isSelected ? 'bg-primary ' : ''
+			isSelected ? 'bg-primary text-white' : ''
 		}`}
 		style:padding-left="{indent}px"
 		on:click={() => (isDir ? toggle(node.id) : onFileSelect(node))}
