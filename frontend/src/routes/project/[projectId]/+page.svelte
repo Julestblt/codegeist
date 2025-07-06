@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getFileContent, getProjectById, startScan, getScanStatus } from '$lib/services/api';
+	import {
+		getFileContent,
+		getProjectById,
+		startScan,
+		getScanStatus,
+		getScanResults
+	} from '$lib/services/api';
 	import type { FileNode, Manifest, Project, Scans, Vulnerability } from '$lib/types/api';
 	import { AnalysisPanel, CodeViewer, FileExplorer, ProjectHeader } from '$lib/components/layout';
 	import { createSkeletonProject } from '$lib/utils/skeleton.utils';
@@ -47,7 +53,6 @@
 					scanStatus.status !== selectedScan.status ||
 					scanStatus.progress !== selectedScan.progress
 				) {
-					// Update the scan status and progress
 					selectedScan = { ...selectedScan, ...scanStatus };
 
 					if (project.scans) {
@@ -113,16 +118,21 @@
 			project = await getProjectById(projectId);
 
 			if (project.scans && project.scans.length > 0) {
-				selectedScan =
-					project.scans.find((scan) => scan.status === 'queued' || scan.status === 'running') ||
-					project.scans[0] ||
-					null;
+				const runningScan = project.scans.find(
+					(scan) => scan.status === 'queued' || scan.status === 'running'
+				);
 
-				if (
-					selectedScan &&
-					(selectedScan.status === 'queued' || selectedScan.status === 'running')
-				) {
+				if (runningScan) {
+					console.log('Found running scan:', { id: runningScan.id, status: runningScan.status });
+					selectedScan = runningScan;
 					startPolling();
+				} else {
+					// Select the most recent scan (assuming scans are ordered by date)
+					console.log('No running scan found, selecting most recent:', {
+						id: project.scans[0]?.id,
+						status: project.scans[0]?.status
+					});
+					selectedScan = project.scans[0] || null;
 				}
 			}
 		} catch (error) {
@@ -189,11 +199,57 @@
 		}
 	};
 
-	const onScanChange = (scanId: string | null) => {
+	const onScanChange = async (scanId: string | null) => {
+		console.log('Page: onScanChange called with:', scanId);
 		stopPolling();
 
 		if (scanId && project) {
 			selectedScan = project.scans?.find((scan) => scan.id === scanId) || null;
+			console.log(
+				'Page: selectedScan updated to:',
+				selectedScan
+					? {
+							id: selectedScan.id,
+							status: selectedScan.status,
+							issuesLength: selectedScan.issues?.length || 0,
+							totalIssues: selectedScan.results?.totalIssues || 0
+						}
+					: null
+			);
+
+			// If scan has no issues but should have some, fetch the detailed scan results
+			if (
+				selectedScan &&
+				selectedScan.results?.totalIssues > 0 &&
+				(!selectedScan.issues || selectedScan.issues.length === 0)
+			) {
+				console.log('Page: Fetching detailed scan results for:', scanId);
+				try {
+					const scanResultsResponse = await getScanResults(scanId);
+
+					// Combine the scan data with the issues from the response
+					const detailedScan = {
+						...selectedScan,
+						issues: scanResultsResponse.issues
+					};
+
+					console.log('Page: Received detailed scan results:', {
+						id: detailedScan.id,
+						issuesLength: detailedScan.issues?.length || 0
+					});
+
+					// Update the scan in project.scans with the detailed data
+					if (project.scans) {
+						const scanIndex = project.scans.findIndex((s) => s.id === scanId);
+						if (scanIndex !== -1) {
+							project.scans[scanIndex] = detailedScan;
+						}
+					}
+					selectedScan = detailedScan;
+				} catch (error) {
+					console.error('Page: Error fetching detailed scan results:', error);
+				}
+			}
 
 			if (selectedScan && (selectedScan.status === 'queued' || selectedScan.status === 'running')) {
 				startPolling();
@@ -210,6 +266,13 @@
 					description: 'Your project is now being analyzed for vulnerabilities.',
 					duration: 3000
 				});
+
+				if (project.scans) {
+					project.scans = [response.scan, ...project.scans];
+				} else {
+					project.scans = [response.scan];
+				}
+
 				selectedScan = response.scan;
 
 				// Start polling for the new scan
@@ -224,6 +287,17 @@
 			return;
 		}
 	};
+
+	$: console.log(
+		'selectedScan changed:',
+		selectedScan
+			? {
+					id: selectedScan.id,
+					status: selectedScan.status,
+					progress: selectedScan.progress
+				}
+			: null
+	);
 </script>
 
 <svelte:head>
@@ -288,6 +362,7 @@
 			{:else}
 				<AnalysisPanel
 					scans={project?.scans || []}
+					currentSelectedScan={selectedScan}
 					{onVulnerabilitySelect}
 					{onScanChange}
 					projectId={project?.id || null}

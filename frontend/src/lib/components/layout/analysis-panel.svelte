@@ -20,6 +20,7 @@
 	export let onTogglePanel: (() => void) | undefined = undefined;
 	export let scans: Scans[];
 	export let projectId: string | null = null;
+	export let currentSelectedScan: Scans | null = null;
 
 	let selectedSeverity = 'all';
 	let expandedVuln: string | null = null;
@@ -58,42 +59,56 @@
 			}`
 		: 'Select scan';
 
-	$: {
-		const latestCompletedScan = scans
-			.filter((scan) => scan.status === 'done' && scan.finishedAt)
-			.sort((a, b) => {
-				const dateA = new Date(a.finishedAt!);
-				const dateB = new Date(b.finishedAt!);
-				return dateB.getTime() - dateA.getTime();
-			})[0];
-
-		selectedScan = latestCompletedScan || scans[0] || null;
-		selectedScanId = selectedScan?.id || '';
-
+	// Sync with parent's selected scan
+	$: if (currentSelectedScan) {
+		selectedScan = currentSelectedScan;
+		selectedScanId = currentSelectedScan.id;
+	} else if (scans.length > 0 && !selectedScan) {
+		selectedScan = scans[0];
+		selectedScanId = scans[0].id;
 		if (onScanChange) {
-			onScanChange(latestCompletedScan?.id || scans[0]?.id || null);
+			onScanChange(scans[0].id);
 		}
 	}
+
+	const handleScanSelection = (newScanId: string) => {
+		console.log('AnalysisPanel: handleScanSelection called with:', newScanId);
+		if (newScanId && newScanId !== selectedScanId) {
+			selectedScanId = newScanId;
+			const newScan = scans.find((s) => s.id === newScanId);
+			if (newScan) {
+				console.log('AnalysisPanel: Found scan:', { id: newScan.id, status: newScan.status });
+				selectedScan = newScan;
+				if (onScanChange) {
+					onScanChange(newScanId);
+				}
+			}
+		}
+	};
 
 	function handleVulnerabilityClick(vuln: Vulnerability) {
 		onVulnerabilitySelect(vuln);
 		expandedVuln = expandedVuln === vuln.id ? null : vuln.id;
 	}
 
-	$: if (selectedScanId && scans.length > 0) {
-		const scan = scans.find((s) => s.id === selectedScanId);
-		if (scan && scan !== selectedScan) {
-			selectedScan = scan;
-			if (onScanChange) {
-				onScanChange(selectedScanId);
-			}
-		}
-	}
-
 	$: filteredIssues =
 		selectedScan?.issues?.filter(
 			(issue) => selectedSeverity === 'all' || issue.severity.toLowerCase() === selectedSeverity
 		) || [];
+
+	$: console.log('AnalysisPanel DEBUG:', {
+		selectedScanId,
+		selectedScan: selectedScan
+			? {
+					id: selectedScan.id,
+					status: selectedScan.status,
+					totalIssues: selectedScan.results?.totalIssues,
+					issuesLength: selectedScan.issues?.length || 0
+				}
+			: null,
+		filteredIssuesLength: filteredIssues.length,
+		selectedSeverity
+	});
 
 	$: severityStats = {
 		critical: {
@@ -205,7 +220,7 @@
 
 			<div class="flex items-center space-x-2">
 				<SearchCode class="text-muted-foreground h-4 w-4" />
-				<Select.Root type="single" bind:value={selectedScanId}>
+				<Select.Root type="single" value={selectedScanId} onValueChange={handleScanSelection}>
 					<Select.Trigger class="w-[280px]">
 						{selectedScanLabel}
 					</Select.Trigger>
