@@ -14,6 +14,11 @@
 
 	$: tree = buildTree(files);
 
+	$: if (tree.length === 1 && tree[0].type === 'folder') {
+		expanded.add(tree[0].id);
+		expanded = expanded;
+	}
+
 	const toggle = (id: string) => {
 		expanded.has(id) ? expanded.delete(id) : expanded.add(id);
 		expanded = expanded;
