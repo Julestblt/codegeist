@@ -7,15 +7,18 @@
 		XCircle,
 		AlertCircle,
 		AlertTriangle,
-		SearchCode
+		SearchCode,
+		PanelRightClose
 	} from 'lucide-svelte';
 	import type { Severity, Vulnerability } from '$lib/types/api';
 	import type { Scans } from '$lib/types/api';
 	import { StatCard } from '$lib/components/ui/stat-card/';
 	import * as Select from '$lib/components/ui/select/';
+	import { Button } from '../ui/button';
 
 	export let onVulnerabilitySelect: (vulnerability: Vulnerability) => void;
 	export let onScanChange: ((scanId: string | null) => void) | undefined = undefined;
+	export let onTogglePanel: (() => void) | undefined = undefined;
 	export let scans: Scans[];
 	export let projectId: string | null = null;
 
@@ -132,6 +135,11 @@
 		<div class="flex-shrink-0 border-b p-4">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Security Analysis</h3>
+				{#if onTogglePanel}
+					<Button variant="ghost" onclick={onTogglePanel} title="Rétracter le panneau d'analyse">
+						<PanelRightClose />
+					</Button>
+				{/if}
 			</div>
 
 			<div class="mb-2 grid grid-cols-2 gap-3">
