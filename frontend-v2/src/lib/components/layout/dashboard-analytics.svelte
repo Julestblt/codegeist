@@ -56,7 +56,7 @@
 			</p>
 		</div>
 		<Badge class="px-4 py-2 select-none" variant={'outline'}>
-			<Activity class="h-4 w-4" />
+			<Activity class="mr-1 h-4 w-4" />
 			<span class="text-sm font-medium">{DASHBOARD_CONFIG.badgeText}</span>
 		</Badge>
 	</div>

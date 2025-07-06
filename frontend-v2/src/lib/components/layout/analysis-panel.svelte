@@ -133,7 +133,7 @@
 			{/if}
 		</div>
 		<div class="text-foreground flex flex-1 items-center justify-center">
-			<div class="text-center">
+			<div class="truncate text-center">
 				<Clock class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
 				<p class="text-lg font-medium">No analysis available</p>
 				<p class="text-muted-foreground text-sm">

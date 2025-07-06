@@ -10,6 +10,8 @@
 	import { stopPropagation } from '$lib/utils/button.utils';
 	import { deleteProject } from '$lib/services/api';
 	import { projectActions } from '$lib/stores/project.store';
+	import { formatFileSize } from '$lib/utils/file.utils';
+	import { formatDateTime } from '$lib/utils/date.utils';
 
 	export let project: Partial<Project> = {
 		id: '',
@@ -99,7 +101,7 @@
 						<Skeleton class="h-4 w-24" />
 					{:else}
 						<Calendar class="mr-2 h-4 w-4" />
-						{project.createdAt}
+						{formatDateTime(project.createdAt)}
 					{/if}
 				</div>
 				<div class="text-muted-foreground flex items-center text-sm">
@@ -117,7 +119,7 @@
 						<Skeleton class="h-4 w-12" />
 					{:else}
 						<HardDrive class="mr-2 h-4 w-4" />
-						{project.totalSize as number}
+						{formatFileSize(project.totalSize as number)}
 					{/if}
 				</div>
 			</div>

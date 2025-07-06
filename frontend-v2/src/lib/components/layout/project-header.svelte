@@ -3,6 +3,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { Radar } from 'lucide-svelte';
+	import { formatDateTime } from '$lib/utils/date.utils';
+	import { formatFileSize } from '$lib/utils/file.utils';
 
 	export let project: Project;
 	export let isLoading: boolean = false;
@@ -26,8 +28,9 @@
 				<h2 class="text-xl font-semibold">{project.name}</h2>
 
 				<p class="text-muted-foreground text-sm">
-					{project.totalFiles ?? 0} files · {project.totalSize} · Uploaded&nbsp;at&nbsp;
-					{project.updatedAt}
+					{project.totalFiles ?? 0} files · {formatFileSize(project.totalSize as number)} · Uploaded&nbsp;at&nbsp;{formatDateTime(
+						project.updatedAt
+					)}
 				</p>
 				{#if project.url}
 					<a
