@@ -54,7 +54,7 @@ export interface Vulnerability {
 
 export interface Scans {
 	id: string;
-	status: 'queued' | 'running' | 'completed' | 'failed';
+	status: 'queued' | 'running' | 'done' | 'failed';
 	progress: number;
 	startedAt?: string;
 	finishedAt?: string;

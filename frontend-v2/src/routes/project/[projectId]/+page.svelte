@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getFileContent, getProjectById } from '$lib/services/api';
+	import { getFileContent, getProjectById, startScan, getScanStatus } from '$lib/services/api';
 	import type { FileNode, Manifest, Project, Scans, Vulnerability } from '$lib/types/api';
 	import { AnalysisPanel, CodeViewer, FileExplorer, ProjectHeader } from '$lib/components/layout';
 	import { createSkeletonProject } from '$lib/utils/skeleton.utils';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { PanelLeftClose, PanelRightClose } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
 	const projectId = page.params.projectId;
 
@@ -19,6 +20,7 @@
 	let highlightLine: number | null = null;
 	let isFileExplorerCollapsed = false;
 	let isAnalysisPanelCollapsed = false;
+	let pollingScanInterval: number | null = null;
 
 	const mockProject = createSkeletonProject(projectId);
 
@@ -30,16 +32,108 @@
 		isAnalysisPanelCollapsed = !isAnalysisPanelCollapsed;
 	};
 
+	const startPolling = () => {
+		if (pollingScanInterval) {
+			clearInterval(pollingScanInterval);
+		}
+
+		pollingScanInterval = setInterval(async () => {
+			if (!selectedScan || !project) return;
+
+			try {
+				const scanStatus = await getScanStatus(selectedScan.id);
+
+				if (
+					scanStatus.status !== selectedScan.status ||
+					scanStatus.progress !== selectedScan.progress
+				) {
+					// Update the scan status and progress
+					selectedScan = { ...selectedScan, ...scanStatus };
+
+					if (project.scans) {
+						const scanIndex = project.scans.findIndex((scan) => scan.id === selectedScan?.id);
+						if (scanIndex !== -1) {
+							project.scans[scanIndex] = selectedScan;
+						}
+					}
+
+					if (scanStatus.status === 'done' || scanStatus.status === 'failed') {
+						stopPolling();
+
+						if (scanStatus.status === 'done') {
+							toast.success('Analysis completed', {
+								description: 'Your project analysis has finished successfully.',
+								duration: 3000
+							});
+
+							await refreshProjectData();
+						} else if (scanStatus.status === 'failed') {
+							toast.error('Analysis failed', {
+								description: 'There was an error during the analysis process.',
+								duration: 3000
+							});
+						}
+					}
+				}
+			} catch (error) {
+				console.error('Error polling scan status:', error);
+				stopPolling();
+			}
+		}, 5000);
+	};
+
+	const stopPolling = () => {
+		if (pollingScanInterval) {
+			clearInterval(pollingScanInterval);
+			pollingScanInterval = null;
+		}
+	};
+
+	const refreshProjectData = async () => {
+		if (!projectId) return;
+
+		try {
+			const updatedProject = await getProjectById(projectId);
+			project = updatedProject;
+
+			if (selectedScan && project.scans) {
+				selectedScan = project.scans.find((scan) => scan.id === selectedScan?.id) || selectedScan;
+			}
+
+			if (selectedFile && selectedFileId) {
+				await onFileSelect(selectedFile);
+			}
+		} catch (error) {
+			console.error('Error refreshing project data:', error);
+		}
+	};
+
 	onMount(async () => {
 		try {
 			project = await getProjectById(projectId);
 
-			selectedScan = project?.scans?.[0] || null;
+			if (project.scans && project.scans.length > 0) {
+				selectedScan =
+					project.scans.find((scan) => scan.status === 'queued' || scan.status === 'running') ||
+					project.scans[0] ||
+					null;
+
+				if (
+					selectedScan &&
+					(selectedScan.status === 'queued' || selectedScan.status === 'running')
+				) {
+					startPolling();
+				}
+			}
 		} catch (error) {
 			console.error('Erreur lors du chargement du projet:', error);
 		} finally {
 			isLoading = false;
 		}
+	});
+
+	onDestroy(() => {
+		stopPolling();
 	});
 
 	const onFileSelect = async (file: FileNode) => {
@@ -96,8 +190,38 @@
 	};
 
 	const onScanChange = (scanId: string | null) => {
+		stopPolling();
+
 		if (scanId && project) {
 			selectedScan = project.scans?.find((scan) => scan.id === scanId) || null;
+
+			if (selectedScan && (selectedScan.status === 'queued' || selectedScan.status === 'running')) {
+				startPolling();
+			}
+		}
+	};
+
+	const startScanHandler = async () => {
+		if (!project) return;
+		try {
+			const response = await startScan(project.id);
+			if (response.scan) {
+				toast.success('Scan started successfully', {
+					description: 'Your project is now being analyzed for vulnerabilities.',
+					duration: 3000
+				});
+				selectedScan = response.scan;
+
+				// Start polling for the new scan
+				startPolling();
+			}
+		} catch (error) {
+			console.error('Error starting scan:', error);
+			toast.error('Failed to start scan', {
+				description: 'An error occurred while starting the scan. Please try again later.',
+				duration: 3000
+			});
+			return;
 		}
 	};
 </script>
@@ -107,7 +231,7 @@
 </svelte:head>
 
 <div class="flex h-full flex-col overflow-hidden">
-	<ProjectHeader project={project || mockProject} {isLoading} />
+	<ProjectHeader {selectedScan} {startScanHandler} project={project || mockProject} {isLoading} />
 
 	<div class="flex min-h-0 flex-1 overflow-hidden">
 		<div

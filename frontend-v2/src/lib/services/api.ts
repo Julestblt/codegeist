@@ -1,4 +1,4 @@
-import type { DashboardAnalytics, Project, Vulnerability } from '$lib/types/api';
+import type { DashboardAnalytics, Project, Scans, Vulnerability } from '$lib/types/api';
 
 const API_BASE = 'http://localhost:3000/api/v1';
 
@@ -74,7 +74,9 @@ const getVulnerabilitiesForFile = async (
 };
 
 const createProject = async (name: string, url?: string | null): Promise<string> => {
-	const { project: { id } } = await apiRequest<{ project: { id: string } }>('/projects', {
+	const {
+		project: { id }
+	} = await apiRequest<{ project: { id: string } }>('/projects', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ name, url })
@@ -91,6 +93,25 @@ const uploadProjectZip = async (projectId: string, file: File): Promise<{ projec
 	});
 };
 
+const startScan = (
+	projectId: string
+): Promise<{
+	scan: {
+		id: string;
+		status: 'queued' | 'running' | 'done' | 'failed';
+		progress: number;
+	};
+}> =>
+	apiRequest(`/scans/${projectId}/scan`, {
+		method: 'POST'
+	});
+
+const getScanStatus = (scanId: string): Promise<Scans> => {
+	return apiRequest<Scans>(`/scans/${scanId}/status`, {
+		method: 'GET'
+	});
+};
+
 export {
 	getProjects,
 	getProjectById,
@@ -99,5 +120,7 @@ export {
 	getFileContent,
 	getVulnerabilitiesForFile,
 	createProject,
-	uploadProjectZip
+	uploadProjectZip,
+	startScan,
+	getScanStatus
 };

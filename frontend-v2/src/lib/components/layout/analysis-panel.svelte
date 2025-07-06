@@ -12,7 +12,6 @@
 	} from 'lucide-svelte';
 	import type { Severity, Vulnerability } from '$lib/types/api';
 	import type { Scans } from '$lib/types/api';
-	import { StatCard } from '$lib/components/ui/stat-card/';
 	import * as Select from '$lib/components/ui/select/';
 	import { Button } from '../ui/button';
 
@@ -39,7 +38,7 @@
 		severityOptions.find((opt) => opt.value === selectedSeverity)?.label ?? 'Select severity';
 	$: selectedScanLabel = selectedScan
 		? `${
-				selectedScan.status === 'completed'
+				selectedScan.status === 'done'
 					? '✅'
 					: selectedScan.status === 'running'
 						? '🔄'
@@ -61,7 +60,7 @@
 
 	$: {
 		const latestCompletedScan = scans
-			.filter((scan) => scan.status === 'completed' && scan.finishedAt)
+			.filter((scan) => scan.status === 'done' && scan.finishedAt)
 			.sort((a, b) => {
 				const dateA = new Date(a.finishedAt!);
 				const dateB = new Date(b.finishedAt!);
@@ -215,7 +214,7 @@
 							<Select.Label>Scans</Select.Label>
 							{#each scans as scan (scan.id)}
 								<Select.Item value={scan.id} label={scan.id}>
-									{scan.status === 'completed'
+									{scan.status === 'done'
 										? '✅'
 										: scan.status === 'running'
 											? '🔄'

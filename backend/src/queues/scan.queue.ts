@@ -21,7 +21,7 @@ export const scanQueue = new Queue<ScanJob>("scan", {
 
 const LM_API_URL =
   process.env.LM_API_URL ?? "http://192.168.1.12:1234/v1/chat/completions";
-const LM_MODEL = process.env.LM_MODEL ?? "qwen/qwen3-32b";
+const LM_MODEL = process.env.LM_MODEL ?? "qwen/qwen3-14b";
 
 const SYSTEM_PROMPT = `
 /no_think
