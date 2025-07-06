@@ -15,7 +15,7 @@
 {:else}
 	<div class="flex min-h-screen flex-col overflow-y-auto">
 		<Header />
-		<div class="flex-1 overflow-hidden">
+		<div class="flex flex-1 flex-col overflow-hidden">
 			{@render children()}
 		</div>
 	</div>
