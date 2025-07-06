@@ -73,11 +73,31 @@ const getVulnerabilitiesForFile = async (
 	).then((d) => d);
 };
 
+const createProject = async (name: string, url?: string | null): Promise<string> => {
+	const { project: { id } } = await apiRequest<{ project: { id: string } }>('/projects', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ name, url })
+	});
+	return id;
+};
+
+const uploadProjectZip = async (projectId: string, file: File): Promise<{ project: Project }> => {
+	const fd = new FormData();
+	fd.append('file', file);
+	return apiRequest<{ project: Project }>(`/projects/${projectId}/upload`, {
+		method: 'POST',
+		body: fd
+	});
+};
+
 export {
 	getProjects,
 	getProjectById,
 	getDashboardAnalytics,
 	deleteProject,
 	getFileContent,
-	getVulnerabilitiesForFile
+	getVulnerabilitiesForFile,
+	createProject,
+	uploadProjectZip
 };

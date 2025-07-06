@@ -25,7 +25,6 @@
 </svelte:head>
 
 {#if !isInitialized}
-	<!-- Loading state with integrated skeletons -->
 	<div class="min-h-full">
 		<div class="p-8">
 			<DashboardAnalytics totalProjects={0} isLoading={true} />
