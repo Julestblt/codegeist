@@ -26,21 +26,6 @@
 					vulnerabilities. Protect your applications with in-depth analysis and expert
 					recommendations.
 				</p>
-				<div class="flex items-center space-x-4">
-					<Button href="https://github.com" target="_blank" size="icon" variant="outline">
-						<Github
-							class="text-muted-foreground h-5 w-5 transition-colors group-hover:text-white"
-						/>
-					</Button>
-					<Button href="https://twitter.com" target="_blank" size="icon" variant="outline">
-						<Twitter
-							class="text-muted-foreground h-5 w-5 transition-colors group-hover:text-white"
-						/>
-					</Button>
-					<Button href="mailto:contact@codegeist.com" size="icon" variant="outline">
-						<Mail class="text-muted-foreground h-5 w-5 transition-colors group-hover:text-white" />
-					</Button>
-				</div>
 			</div>
 		</div>
 

@@ -38,7 +38,7 @@
 	</div>
 
 	<div class="flex-1 overflow-y-auto">
-		<div class="space-y-1 p-2">
+		<div class="space-y-1 truncate p-2">
 			{#each tree as n (n.id)}
 				<Node node={n} {expanded} {selectedFileId} {onFileSelect} {toggle} />
 			{/each}
