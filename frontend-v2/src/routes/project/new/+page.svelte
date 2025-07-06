@@ -111,10 +111,8 @@
 
 			<Card.Content class="p-0">
 				<div class="grid grid-cols-1 gap-0 lg:grid-cols-2">
-					<div class="bg-gray-50 p-8 dark:bg-gray-800/50">
-						<h4 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-							1. Select your file
-						</h4>
+					<div class="bg-muted p-8">
+						<h4 class="mb-4 text-lg font-semibold">1. Select your file</h4>
 
 						<div
 							class={`group relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300 ${
