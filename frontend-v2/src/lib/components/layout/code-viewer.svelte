@@ -122,7 +122,7 @@
 		<div class="border-b p-4">
 			<div class="flex items-center justify-between">
 				<div>
-					<h3 class="text-lg font-semibold">{file.id}</h3>
+					<h3 class="py-1 text-lg font-semibold">{file.id}</h3>
 				</div>
 				{#if vulnerabilities.length > 0}
 					<div class="flex items-center space-x-2">
@@ -166,7 +166,7 @@
 										class="w-12 border-r px-2 py-1 text-right text-xs select-none {isHighlighted
 											? 'bg-primary/30'
 											: hasVulns
-												? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+												? 'bg-red-300 text-red-800 dark:bg-red-900/40 dark:text-red-200'
 												: 'bg-muted text-muted-foreground'}"
 									>
 										{lineNo}
@@ -176,7 +176,7 @@
 										class="flex-1 px-4 py-1 font-mono break-words whitespace-pre-wrap {isHighlighted
 											? 'bg-primary/10'
 											: hasVulns
-												? 'bg-red-50 dark:bg-red-900/20'
+												? 'bg-red-200 dark:bg-red-900/20'
 												: ''}"
 									>
 										<code class={hasVulns ? 'text-red-900 dark:text-red-100' : ''}

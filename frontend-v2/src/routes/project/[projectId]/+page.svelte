@@ -117,7 +117,6 @@
 			}`}
 		>
 			{#if isFileExplorerCollapsed}
-				<!-- Collapsed File Explorer - Show only toggle button -->
 				<div class="bg-muted/50 flex h-full items-center justify-center">
 					<button
 						on:click={toggleFileExplorer}
@@ -137,7 +136,6 @@
 			{/if}
 		</div>
 
-		<!-- Code Viewer (Center) -->
 		<div class="flex flex-1 flex-col overflow-hidden">
 			<CodeViewer
 				file={selectedFile}
@@ -151,12 +149,11 @@
 
 		<!-- Analysis Panel -->
 		<div
-			class={`flex flex-shrink-0 flex-col overflow-hidden transition-all duration-300 ${
+			class={`flex flex-shrink-0 flex-col overflow-hidden border-l transition-all duration-300 ${
 				isAnalysisPanelCollapsed ? 'w-12' : 'w-96'
 			}`}
 		>
 			{#if isAnalysisPanelCollapsed}
-				<!-- Collapsed Analysis Panel - Show only toggle button -->
 				<div class="bg-muted/50 flex h-full items-center justify-center">
 					<button
 						on:click={toggleAnalysisPanel}

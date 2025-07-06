@@ -121,27 +121,40 @@
 </script>
 
 {#if scans.length === 0}
-	<div class="text-foreground flex h-full items-center justify-center border-l">
-		<div class="text-center">
-			<Clock class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-			<p class="text-lg font-medium">No analysis available</p>
-			<p class="text-muted-foreground text-sm">
-				Start a scan to see security analysis results here.
-			</p>
+	<div class="flex h-full flex-col">
+		<div class="flex items-center justify-between border-b p-4">
+			<h3 class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100">
+				Security Analysis
+			</h3>
+			{#if onTogglePanel}
+				<Button variant="ghost" onclick={onTogglePanel} title="Rétracter le panneau d'analyse">
+					<PanelRightClose />
+				</Button>
+			{/if}
+		</div>
+		<div class="text-foreground flex flex-1 items-center justify-center">
+			<div class="text-center">
+				<Clock class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+				<p class="text-lg font-medium">No analysis available</p>
+				<p class="text-muted-foreground text-sm">
+					Start a scan to see security analysis results here.
+				</p>
+			</div>
 		</div>
 	</div>
 {:else}
-	<div class="flex h-full flex-col border-l">
+	<div class="flex h-full flex-col">
+		<div class="flex items-center justify-between border-b p-4">
+			<h3 class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100">
+				Security Analysis
+			</h3>
+			{#if onTogglePanel}
+				<Button variant="ghost" onclick={onTogglePanel} title="Rétracter le panneau d'analyse">
+					<PanelRightClose />
+				</Button>
+			{/if}
+		</div>
 		<div class="flex-shrink-0 border-b p-4">
-			<div class="mb-4 flex items-center justify-between">
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Security Analysis</h3>
-				{#if onTogglePanel}
-					<Button variant="ghost" onclick={onTogglePanel} title="Rétracter le panneau d'analyse">
-						<PanelRightClose />
-					</Button>
-				{/if}
-			</div>
-
 			<div class="mb-2 grid grid-cols-2 gap-3">
 				<div
 					class="bg-card flex h-fit items-center justify-between rounded-lg border p-3 shadow-sm"
