@@ -48,9 +48,6 @@ export const DASHBOARD_CONFIG = {
 } as const;
 
 export const DashboardFormatters = {
-	/**
-	 * Formate un nombre pour l'affichage (ex: 1000 -> 1K)
-	 */
 	formatNumber: (value: number): string => {
 		if (value >= 1000000) {
 			return `${(value / 1000000).toFixed(1)}M`;

@@ -16,7 +16,9 @@
 	$: isInitialized = $projectsInitializedStore;
 
 	onMount(async () => {
-		await projectActions.loadProjects();
+		if (!$projectsInitializedStore) {
+			await projectActions.loadProjects();
+		}
 	});
 </script>
 
@@ -59,7 +61,6 @@
 		</div>
 	</div>
 {:else}
-	<!-- Data state -->
 	<div class="min-h-full">
 		<div class="p-8">
 			<DashboardAnalytics {totalProjects} isLoading={false} />

@@ -6,7 +6,6 @@ export const projectsStore = writable<Project[]>([]);
 
 export const selectedProjectStore = writable<Project | null>(null);
 
-// Store pour savoir si les projets ont été chargés au moins une fois
 export const projectsInitializedStore = writable<boolean>(false);
 
 export const totalProjectsStore = derived(projectsStore, ($projects) => $projects.length);

@@ -110,7 +110,6 @@
 	<ProjectHeader project={project || mockProject} {isLoading} />
 
 	<div class="flex min-h-0 flex-1 overflow-hidden">
-		<!-- File Explorer Panel -->
 		<div
 			class={`flex flex-shrink-0 flex-col overflow-hidden border-r transition-all duration-300 ${
 				isFileExplorerCollapsed ? 'w-12' : 'w-80'
@@ -147,7 +146,6 @@
 			/>
 		</div>
 
-		<!-- Analysis Panel -->
 		<div
 			class={`flex flex-shrink-0 flex-col overflow-hidden border-l transition-all duration-300 ${
 				isAnalysisPanelCollapsed ? 'w-12' : 'w-96'
