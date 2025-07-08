@@ -3,6 +3,11 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { redis } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
+import {
+  SYSTEM_PROMPT,
+  CODE_SCAN_ALLOW_LIST,
+  ALLOWED_FILENAMES,
+} from "@/constants";
 
 export interface ScanJob {
   scanId: string;
@@ -23,63 +28,23 @@ const LM_API_URL =
   process.env.LM_API_URL ?? "http://192.168.1.12:1234/v1/chat/completions";
 const LM_MODEL = process.env.LM_MODEL ?? "qwen/qwen3-14b";
 
-const SYSTEM_PROMPT = `
-/no_think
-You are an AI security auditor specialized in static code analysis.
-Your task is to review code fragments for security vulnerabilities and return findings in a strict JSON format.
-You will receive code snippets from various files in a project, and you must analyze them for security
-vulnerabilities based on the OWASP Top 10 and other common security issues.
-You must follow these rules:
-────────────────────────────────────────────
-GLOBAL RULES
-────────────────────────────────────────────
-1. Output **only** the JSON object requested—no Markdown, headings, or free text.  
-2. Perform a full static-code review: data-flows, business logic, error handling, configuration, and 3rd-party dependencies.  
-3. Eliminate trivial false-positives; report only genuine, relevant findings.
-
-────────────────────────────────────────────
-VULNERABILITY CATEGORIES TO CHECK
-────────────────────────────────────────────
-• **Injection** (SQL, NoSQL, OS command …)  
-• **XSS / HTML injection** (stored, reflected, DOM)  
-• **Authentication & Session** (JWT, CSRF, fixation)  
-• **Access-control** (IDOR, privilege escalation)  
-• **Cryptography** (weak algo, static IV, bad TLS)  
-• **Secrets exposure** (hard-coded keys …)  
-• **Sensitive-data leakage** (logs, debug)  
-• **Dependency security** (CVE, licence)  
-• **Dangerous configuration** (CORS *, debug on)  
-• **Business-logic flaws** (race, missing auth-Z)  
-• **DoS / Resource abuse** (infinite loop, alloc)  
-• **Cloud / IaC** misconfig (public bucket, IAM)  
-
-────────────────────────────────────────────
-STRICT RESPONSE FORMAT
-────────────────────────────────────────────
-{
-  "issues": [
-    {
-      "name":          "<short title>",
-      "type":          "<OWASP category or CWE>",
-      "severity":      "<info|low|medium|high|critical>",
-      "cwe":           "<CWE-ID or null>",
-      "owasp":         "<OWASP-Top-10 entry or null>",
-      "lines":         [ <lineNr>, … ],
-      "description":   "<concise explanation (≤ 250 chars)>",
-      "recommendation":"<clear, actionable fix>"
-    }
-  ]
-}
-
-• Use double quotes only.  
-• If **no** issue exists, return exactly: { "issues": [] }
-`.trim();
-
 const betterLog = (msg: string) => {
   console.log("===================================================");
   console.log(msg);
   console.log("===================================================");
 };
+
+function isFileExtensionAllowed(filePath: string): boolean {
+  const extension = path.extname(filePath).toLowerCase().slice(1);
+
+  const basename = path.basename(filePath).toLowerCase();
+
+  if (ALLOWED_FILENAMES.includes(basename as any)) {
+    return true;
+  }
+
+  return CODE_SCAN_ALLOW_LIST.includes(extension as any);
+}
 
 async function auditFragment(filename: string, code: string): Promise<string> {
   const body = {
@@ -151,6 +116,13 @@ export const scanWorker = new Worker<ScanJob>(
 
       for (const [idx, entry] of manifest.entries()) {
         if (entry.isDir) continue;
+
+        if (!isFileExtensionAllowed(entry.path)) {
+          console.log(
+            `⏭️  Skipping ${entry.path} (extension not in allow list)`
+          );
+          continue;
+        }
 
         const abs = path.join(project.rootPath, entry.path);
         const code = await fs.readFile(abs, "utf8");
