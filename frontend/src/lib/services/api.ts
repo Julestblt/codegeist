@@ -115,8 +115,8 @@ const getScanStatus = (scanId: string): Promise<Scans> => {
 const getScanResults = (scanId: string) => {
 	return apiRequest<{
 		scan: Scans;
-		issues: any[];
-		summary: any;
+		issues: unknown[];
+		summary: unknown;
 	}>(`/scans/${scanId}/results`, {
 		method: 'GET'
 	});
