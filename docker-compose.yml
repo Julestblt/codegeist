@@ -23,6 +23,18 @@ services:
     volumes:
       - redis_data:/data
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: codegeist-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+
 volumes:
   pg_data:
   redis_data:
