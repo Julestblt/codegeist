@@ -9,6 +9,7 @@ import {
   ALLOWED_FILENAMES,
 } from "@/constants";
 import Anthropic from "@anthropic-ai/sdk";
+import { ANTHROPIC_API_KEY } from "@/utils/env";
 
 export interface ScanJob {
   scanId: string;
@@ -26,7 +27,7 @@ export const scanQueue = new Queue<ScanJob>("scan", {
 });
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: ANTHROPIC_API_KEY,
 });
 
 const LM_MODEL = process.env.LM_MODEL ?? "claude-sonnet-4-20250514";
