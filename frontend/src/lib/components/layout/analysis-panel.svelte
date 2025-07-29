@@ -39,7 +39,7 @@
 		severityOptions.find((opt) => opt.value === selectedSeverity)?.label ?? 'Select severity';
 	$: selectedScanLabel = selectedScan
 		? `${
-				selectedScan.status === 'done'
+				selectedScan.status === 'completed'
 					? '✅'
 					: selectedScan.status === 'running'
 						? '🔄'
@@ -229,7 +229,7 @@
 							<Select.Label>Scans</Select.Label>
 							{#each scans as scan (scan.id)}
 								<Select.Item value={scan.id} label={scan.id}>
-									{scan.status === 'done'
+									{scan.status === 'completed'
 										? '✅'
 										: scan.status === 'running'
 											? '🔄'

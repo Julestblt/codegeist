@@ -54,11 +54,11 @@ export interface Vulnerability {
 
 export interface Scans {
 	id: string;
-	status: 'queued' | 'running' | 'done' | 'failed';
+	status: 'queued' | 'running' | 'completed' | 'failed';
 	progress: number;
 	startedAt?: string;
 	finishedAt?: string;
-	results?: Record<string, any>;
+	results?: Record<string, unknown>;
 	issues?: Issue[];
 }
 

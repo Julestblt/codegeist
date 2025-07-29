@@ -8,6 +8,8 @@ import {
   CODE_SCAN_ALLOW_LIST,
   ALLOWED_FILENAMES,
 } from "@/constants";
+import Anthropic from "@anthropic-ai/sdk";
+import { ANTHROPIC_API_KEY } from "@/utils/env";
 
 export interface ScanJob {
   scanId: string;
@@ -24,9 +26,11 @@ export const scanQueue = new Queue<ScanJob>("scan", {
   connection: redis,
 });
 
-const LM_API_URL =
-  process.env.LM_API_URL ?? "http://192.168.1.12:1234/v1/chat/completions";
-const LM_MODEL = process.env.LM_MODEL ?? "qwen/qwen3-14b";
+const anthropic = new Anthropic({
+  apiKey: ANTHROPIC_API_KEY,
+});
+
+const LM_MODEL = process.env.LM_MODEL ?? "claude-sonnet-4-20250514";
 
 const betterLog = (msg: string) => {
   console.log("===================================================");
@@ -36,7 +40,6 @@ const betterLog = (msg: string) => {
 
 function isFileExtensionAllowed(filePath: string): boolean {
   const extension = path.extname(filePath).toLowerCase().slice(1);
-
   const basename = path.basename(filePath).toLowerCase();
 
   if (ALLOWED_FILENAMES.includes(basename as any)) {
@@ -46,40 +49,58 @@ function isFileExtensionAllowed(filePath: string): boolean {
   return CODE_SCAN_ALLOW_LIST.includes(extension as any);
 }
 
-async function auditFragment(filename: string, code: string): Promise<string> {
-  const body = {
-    model: LM_MODEL,
-    temperature: 0,
-    max_tokens: 5000,
-    stream: false,
-    messages: [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-      },
-      { role: "user", content: `File: ${filename}\n\`\`\`\n${code}\n\`\`\`` },
-    ],
-  };
+async function auditFragment(filename: string, code: string): Promise<any> {
+  try {
+    const message = await anthropic.messages.create({
+      model: LM_MODEL,
+      max_tokens: 1024,
+      temperature: 0,
+      system: SYSTEM_PROMPT,
+      stream: false,
+      messages: [
+        {
+          role: "user",
+          content: `File: ${filename}\n\`\`\`\n${code}\n\`\`\``,
+        },
+      ],
+    });
 
-  console.log(LM_API_URL);
+    betterLog(
+      `Respone from Anthropic API for ${filename}:\n${JSON.stringify(
+        message,
+        null,
+        2
+      )}`
+    );
 
-  const res = await fetch(LM_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    // @ts-ignore
-    timeout: 0,
-  });
+    const content = message.content[0];
+    if (content?.type === "text") {
+      const responseText = content.text;
 
-  if (!res.ok) {
-    throw new Error(`LLM HTTP ${res.status}: ${await res.text()}`);
+      const cleanedResponse = responseText.replace(
+        /<think>[\s\S]*?<\/think>\s*/g,
+        ""
+      );
+
+      try {
+        return JSON.parse(cleanedResponse);
+      } catch (parseError) {
+        console.error(
+          `Failed to parse JSON response for ${filename}:`,
+          parseError
+        );
+        console.error("Raw response:", cleanedResponse);
+
+        // Retourner un objet vide si le parsing échoue
+        return { issues: [] };
+      }
+    }
+
+    throw new Error("Unexpected response format from Anthropic API");
+  } catch (error) {
+    console.error(`Error calling Anthropic API for ${filename}:`, error);
+    throw error;
   }
-
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-
-  return data.choices?.[0]?.message?.content ?? "";
 }
 
 export const scanWorker = new Worker<ScanJob>(
@@ -113,6 +134,7 @@ export const scanWorker = new Worker<ScanJob>(
         : [];
 
       const allIssues: any[] = [];
+      let processedFiles = 0;
 
       for (const [idx, entry] of manifest.entries()) {
         if (entry.isDir) continue;
@@ -130,11 +152,7 @@ export const scanWorker = new Worker<ScanJob>(
         console.log(`🔍  [${idx + 1}/${manifest.length}] ${entry.path}`);
 
         try {
-          const result = await auditFragment(entry.path, code);
-
-          const parsedResult = JSON.parse(
-            result.replace("<think>\n\n</think>\n\n", "")
-          );
+          const parsedResult = await auditFragment(entry.path, code);
 
           betterLog(
             `🔍  Result for ${entry.path}:\n${JSON.stringify(
@@ -164,7 +182,7 @@ export const scanWorker = new Worker<ScanJob>(
                 projectId: projectId,
                 scanId: scanId,
                 filePath: entry.path,
-                lines: issue.lines,
+                lines: issue.lines || [],
                 type: issue.type,
                 severity: issue.severity.toUpperCase(),
                 description: issue.description,
@@ -174,9 +192,11 @@ export const scanWorker = new Worker<ScanJob>(
               skipDuplicates: true,
             });
           }
+
+          processedFiles++;
         } catch (err) {
           console.error(
-            `❌  LLM error on ${entry.path}: ${(err as Error).message}`
+            `❌  Error analyzing ${entry.path}: ${(err as Error).message}`
           );
         }
 
@@ -208,18 +228,23 @@ export const scanWorker = new Worker<ScanJob>(
           acc[issue.type] = (acc[issue.type] || 0) + 1;
           return acc;
         }, {}),
-        scannedFiles: manifest.filter((e) => !e.isDir).length,
+        scannedFiles: processedFiles,
       };
 
       await prisma.scan.update({
         where: { id: scanId },
         data: {
-          status: "done",
+          status: "completed",
           finishedAt: new Date(),
           progress: 100,
           results: summary,
         },
       });
+
+      console.log(`✅  Scan ${scanId} completed successfully`);
+      console.log(
+        `📊  Summary: ${allIssues.length} issues found in ${processedFiles} files`
+      );
     } catch (error) {
       console.error(`❌  Scan ${scanId} failed:`, error);
 
@@ -264,6 +289,7 @@ export async function getScanResults(scanId: string) {
       project: {
         include: {
           issues: {
+            where: { scanId: scanId },
             orderBy: [
               { severity: "desc" },
               { filePath: "asc" },

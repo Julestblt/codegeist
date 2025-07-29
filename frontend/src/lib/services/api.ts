@@ -1,6 +1,8 @@
 import type { DashboardAnalytics, Project, Scans, Vulnerability } from '$lib/types/api';
+import { PUBLIC_API_URL } from '$env/static/public';
 
-const API_BASE = 'http://localhost:3000/api/v1';
+const API_BASE = PUBLIC_API_URL + '/api/v1';
+console.log('API_BASE', API_BASE);
 
 const apiRequest = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> => {
 	const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -115,8 +117,8 @@ const getScanStatus = (scanId: string): Promise<Scans> => {
 const getScanResults = (scanId: string) => {
 	return apiRequest<{
 		scan: Scans;
-		issues: any[];
-		summary: any;
+		issues: unknown[];
+		summary: unknown;
 	}>(`/scans/${scanId}/results`, {
 		method: 'GET'
 	});

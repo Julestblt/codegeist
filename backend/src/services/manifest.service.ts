@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
 export interface ManifestNode {
@@ -30,12 +30,12 @@ const buildManifest = async (
             list.push({ path: rel, isDir: true, size: 0 });
             await walk(full);
           } else {
-            const file = Bun.file(full);
-            const exists = await file.exists();
-            if (exists) {
-              const { size } = await file.stat();
-              list.push({ path: rel, isDir: false, size });
-              total += size;
+            try {
+              const stats = await stat(full);
+              list.push({ path: rel, isDir: false, size: stats.size });
+              total += stats.size;
+            } catch (statError) {
+              console.log(`❌ Error getting stats for ${full}:`, statError);
             }
           }
         } catch (error) {
