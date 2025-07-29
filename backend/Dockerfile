@@ -17,6 +17,5 @@ COPY --from=builder /app/prisma       ./prisma
 
 ENV NODE_ENV=production
 EXPOSE 8080
-USER node
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
