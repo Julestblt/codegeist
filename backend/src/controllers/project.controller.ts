@@ -12,6 +12,12 @@ import path from "node:path";
 import { readFile } from "node:fs/promises";
 import mime from "mime-types";
 
+/**
+ * Create project metadata.
+ * @param req - Fastify request object.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the created project metadata.
+ */
 const createProjectMetaController = async (
   req: FastifyRequest<{ Body: { name: string; url?: string } }>,
   rep: FastifyReply
@@ -25,6 +31,12 @@ const createProjectMetaController = async (
   return rep.status(201).send({ project });
 };
 
+/**
+ * Upload project archive.
+ * @param req - Fastify request object containing project ID and file upload.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the updated project metadata.
+ */
 const uploadArchiveController = async (
   req: FastifyRequest<{ Params: { projectId: string } }>,
   rep: FastifyReply
@@ -51,6 +63,12 @@ const uploadArchiveController = async (
   return rep.status(201).send({ project: updatedProject });
 };
 
+/**
+ * Delete a project.
+ * @param req - Fastify request object.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply indicating success or failure.
+ */
 const deleteProjectController = async (
   req: FastifyRequest<{ Params: { projectId: string } }>,
   rep: FastifyReply
@@ -65,6 +83,12 @@ const deleteProjectController = async (
   }
 };
 
+/**
+ * Get all projects.
+ * @param _req - Fastify request object.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the list of projects.
+ */
 const getProjectsController = async (
   _req: FastifyRequest,
   rep: FastifyReply
@@ -83,6 +107,12 @@ const getProjectsController = async (
   rep.send({ projects, length: projects.length });
 };
 
+/**
+ * Get project by ID.
+ * @param req - Fastify request object.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the project metadata.
+ */
 const getProjectByIdController = async (
   req: FastifyRequest<{ Params: { projectId: string } }>,
   rep: FastifyReply
@@ -146,6 +176,12 @@ const getProjectByIdController = async (
   });
 };
 
+/**
+ * Get a project file.
+ * @param req - Fastify request object containing project ID and file path.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the file content or error.
+ */
 const getProjectFileController = async (
   req: FastifyRequest<{
     Params: { projectId: string };
@@ -179,6 +215,12 @@ const getProjectFileController = async (
   }
 };
 
+/**
+ * Get vulnerabilities for a specific file in a project.
+ * @param req - Fastify request object containing project ID and file path.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the list of vulnerabilities for the file.
+ */
 const getVulnerabilitiesForFileController = async (
   req: FastifyRequest<{
     Params: { projectId: string };
@@ -194,7 +236,6 @@ const getVulnerabilitiesForFileController = async (
     filePath,
   };
 
-  // If scanId is provided, filter by that specific scan
   if (scanId) {
     whereClause.scanId = scanId;
   }

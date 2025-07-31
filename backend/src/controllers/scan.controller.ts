@@ -3,6 +3,12 @@ import { scanQueue } from "@/queues/scan.queue";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 
+/**
+ * Start a new scan for a project.
+ * @param req - Fastify request object containing project ID.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the scan metadata.
+ */
 export const startScanController = async (
   req: FastifyRequest<{ Params: { projectId: string } }>,
   rep: FastifyReply
@@ -33,6 +39,12 @@ export const startScanController = async (
   });
 };
 
+/**
+ * Get the status of a scan.
+ * @param req - Fastify request object containing scan ID.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the scan status.
+ */
 export const getScanStatusController = async (
   req: FastifyRequest<{ Params: { scanId: string } }>,
   rep: FastifyReply
@@ -57,6 +69,12 @@ export const getScanStatusController = async (
   return rep.send(scan);
 };
 
+/**
+ * Get the results of a scan.
+ * @param req - Fastify request object containing scan ID.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the scan results.
+ */
 export const getScanResultsController = async (
   req: FastifyRequest<{ Params: { scanId: string } }>,
   rep: FastifyReply
@@ -97,6 +115,13 @@ export const getScanResultsController = async (
     summary: scan.results as any,
   });
 };
+
+/**
+ * Get dashboard analytics.
+ * @param _req - Fastify request object.
+ * @param rep - Fastify reply object.
+ * @returns Fastify reply with the dashboard analytics.
+ */
 export const getDashboardAnalyticsController = async (
   _req: FastifyRequest,
   rep: FastifyReply

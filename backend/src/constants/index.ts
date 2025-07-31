@@ -1,3 +1,6 @@
+/**
+ * Allowed file extensions for code scanning.
+ */
 export const CODE_SCAN_ALLOW_LIST = [
   "js",
   "jsx",
@@ -133,6 +136,9 @@ export const CODE_SCAN_ALLOW_LIST = [
   "csr",
 ] as const;
 
+/**
+ * Allowed filenames without extensions for code scanning.
+ */
 export const ALLOWED_FILENAMES = [
   "dockerfile",
   "containerfile",
@@ -144,6 +150,9 @@ export const ALLOWED_FILENAMES = [
   "todo",
 ] as const;
 
+/**
+ * System prompt for the AI LLM.
+ */
 export const SYSTEM_PROMPT = `
 /no_think
 You are an AI security auditor specialized in static code analysis.
