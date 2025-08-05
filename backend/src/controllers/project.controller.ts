@@ -11,6 +11,7 @@ import { prisma } from "../lib/prisma";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
 import mime from "mime-types";
+import { getUser, getUserId } from "../utils/auth.utils";
 
 /**
  * Create project metadata.
@@ -24,6 +25,13 @@ const createProjectMetaController = async (
 ) => {
   const { name, url } = req.body ?? {};
   if (!name?.trim()) return rep.status(400).send({ error: "name required" });
+
+  const user = getUser(req);
+  const userId = getUserId(req);
+
+  if (!userId) {
+    return rep.status(403).send({ error: "User not authenticated" });
+  }
 
   const id = randomUUID();
   const project = await createProjectMeta({ id, name, url });

@@ -1,16 +1,47 @@
 import type { DashboardAnalytics, Project, Scans, Vulnerability } from '$lib/types/api';
 import { PUBLIC_API_URL } from '$env/static/public';
+import { authService } from './auth.service';
 
 const API_BASE = PUBLIC_API_URL + '/api/v1';
 console.log('API_BASE', API_BASE);
 
+let isAuthenticating = false;
+
 const apiRequest = async <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+	await authService.init();
+
+	await authService.refreshToken();
+
+	const token = authService.getToken();
+	console.log('Envoi de la requête avec token:', token ? 'présent' : 'absent', 'vers:', endpoint);
+
+	const headers = {
+		...options.headers,
+		...(token && { Authorization: `Bearer ${token}` })
+	};
+
+	console.log('Headers envoyés:', headers);
+
 	const response = await fetch(`${API_BASE}${endpoint}`, {
 		...options,
-		headers: {
-			...options.headers
-		}
+		headers
 	});
+
+	const status = response.status;
+	console.log('Réponse reçue:', status, 'pour:', endpoint);
+
+	if (status === 403 || status === 401) {
+		if (!authService.isAuthenticated() && !isAuthenticating) {
+			console.log('Non authentifié, redirection vers Keycloak...');
+			isAuthenticating = true;
+			try {
+				await authService.login();
+			} finally {
+				isAuthenticating = false;
+			}
+		}
+		throw new Error('Unauthorized');
+	}
 
 	return await response.json();
 };
@@ -33,9 +64,25 @@ const getFileContent = async (
 	projectId: string,
 	filePath: string
 ): Promise<{ content: string; mimeType: string }> => {
+	await authService.init();
+
+	await authService.refreshToken();
+
+	const token = authService.getToken();
+	const headers: HeadersInit = {};
+	if (token) {
+		headers.Authorization = `Bearer ${token}`;
+	}
+
 	const res = await fetch(
-		`${API_BASE}/projects/${projectId}/file?path=${encodeURIComponent(filePath)}`
+		`${API_BASE}/projects/${projectId}/file?path=${encodeURIComponent(filePath)}`,
+		{ headers }
 	);
+
+	if (res.status === 403 || res.status === 401) {
+		await authService.login();
+		throw new Error('Unauthorized');
+	}
 
 	if (!res.ok) {
 		const msg = await res.text().catch(() => 'Unknown error');
@@ -135,5 +182,6 @@ export {
 	uploadProjectZip,
 	startScan,
 	getScanStatus,
-	getScanResults
+	getScanResults,
+	authService
 };
