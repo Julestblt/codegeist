@@ -9,10 +9,7 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-RUN mv .env.production .env
-
 RUN bun run build
-
 
 FROM node:22-alpine AS production
 
